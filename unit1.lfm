@@ -1,0 +1,1120 @@
+object Form1: TForm1
+  Left = 238
+  Height = 713
+  Top = 0
+  Width = 1035
+  Caption = 'Шаблон программ дисциплины "Компьютерная графика" v0.95 (автор Ионисян А.С.)'
+  ClientHeight = 690
+  ClientWidth = 1035
+  Menu = MainMenu
+  OnCreate = FormCreate
+  LCLVersion = '1.4.4.0'
+  object PanelStatus: TPanel
+    Left = 0
+    Height = 64
+    Top = 626
+    Width = 1035
+    Align = alBottom
+    Alignment = taLeftJustify
+    BevelOuter = bvLowered
+    ClientHeight = 64
+    ClientWidth = 1035
+    TabOrder = 0
+    object LabelMouseCoords: TLabel
+      Left = 200
+      Height = 17
+      Top = 24
+      Width = 41
+      Caption = 'Мышь:'
+      ParentColor = False
+    end
+    object LabelColorPen: TLabel
+      Left = 8
+      Height = 17
+      Top = 0
+      Width = 97
+      Caption = 'Цвет рисования'
+      ParentColor = False
+      OnClick = LabelColorPenClick
+    end
+    object LabelPBoxMainSize: TLabel
+      Left = 200
+      Height = 17
+      Top = 0
+      Width = 54
+      Caption = 'Полотно:'
+      ParentColor = False
+    end
+    object LabelInstrumentName: TLabel
+      Left = 600
+      Height = 17
+      Top = 0
+      Width = 75
+      Caption = 'Инструмент:'
+      ParentColor = False
+    end
+    object LabelFileName: TLabel
+      Left = 8
+      Height = 17
+      Top = 45
+      Width = 35
+      Caption = 'Файл:'
+      ParentColor = False
+      OnClick = MenuItemFileOpenClick
+    end
+    object LabelLayerCode: TLabel
+      Left = 400
+      Height = 17
+      Top = 0
+      Width = 33
+      Caption = 'Слой:'
+      ParentColor = False
+      OnClick = LabelLayerCodeClick
+    end
+    object LabelLayerTransp: TLabel
+      Left = 400
+      Height = 17
+      Top = 24
+      Width = 87
+      Caption = 'Прозрачность:'
+      ParentColor = False
+      OnClick = LabelLayerTranspClick
+    end
+    object LabelPenSize: TLabel
+      Left = 600
+      Height = 17
+      Top = 24
+      Width = 33
+      Caption = 'Перо:'
+      ParentColor = False
+      OnClick = LabelPenSizeClick
+    end
+    object LabelMagnify: TLabel
+      Left = 6
+      Height = 17
+      Top = 24
+      Width = 32
+      Caption = 'Лупа:'
+      ParentColor = False
+    end
+    object LabelCollection: TLabel
+      Left = 752
+      Height = 17
+      Top = 24
+      Width = 67
+      Caption = 'Коллекция:'
+      ParentColor = False
+    end
+  end
+  object PanelColor: TPanel
+    Left = 0
+    Height = 558
+    Top = 68
+    Width = 144
+    Align = alLeft
+    ClientHeight = 558
+    ClientWidth = 144
+    TabOrder = 1
+    object LabelColorRed: TLabel
+      Left = 12
+      Height = 17
+      Top = 144
+      Width = 124
+      AutoSize = False
+      Caption = 'R='
+      ParentColor = False
+    end
+    object LabelColorGreen: TLabel
+      Left = 12
+      Height = 17
+      Top = 160
+      Width = 123
+      AutoSize = False
+      Caption = 'G='
+      ParentColor = False
+    end
+    object LabelColorBlue: TLabel
+      Left = 12
+      Height = 17
+      Top = 176
+      Width = 123
+      AutoSize = False
+      Caption = 'B='
+      ParentColor = False
+    end
+    object LabelColorHue: TLabel
+      Left = 11
+      Height = 17
+      Top = 200
+      Width = 120
+      AutoSize = False
+      Caption = 'H='
+      ParentColor = False
+    end
+    object LabelColorSaturation: TLabel
+      Left = 10
+      Height = 17
+      Top = 218
+      Width = 123
+      AutoSize = False
+      Caption = 'S='
+      ParentColor = False
+    end
+    object LabelColorvalue: TLabel
+      Left = 10
+      Height = 17
+      Top = 240
+      Width = 122
+      AutoSize = False
+      Caption = 'V='
+      ParentColor = False
+    end
+    object LabelColorY_gamma: TLabel
+      Left = 11
+      Height = 17
+      Top = 384
+      Width = 120
+      AutoSize = False
+      Caption = 'Y='
+      ParentColor = False
+    end
+    object LabelColorCb: TLabel
+      Left = 10
+      Height = 17
+      Top = 408
+      Width = 122
+      AutoSize = False
+      Caption = 'U='
+      ParentColor = False
+    end
+    object LabelColorCr: TLabel
+      Left = 10
+      Height = 17
+      Top = 432
+      Width = 123
+      AutoSize = False
+      Caption = 'V='
+      ParentColor = False
+    end
+    object LabelColorCyan: TLabel
+      Left = 12
+      Height = 17
+      Top = 288
+      Width = 124
+      AutoSize = False
+      Caption = 'C='
+      ParentColor = False
+    end
+    object LabelColorMagenta: TLabel
+      Left = 10
+      Height = 17
+      Top = 311
+      Width = 123
+      AutoSize = False
+      Caption = 'M='
+      ParentColor = False
+    end
+    object LabelColorYellow: TLabel
+      Left = 12
+      Height = 17
+      Top = 333
+      Width = 123
+      AutoSize = False
+      Caption = 'Y='
+      ParentColor = False
+    end
+    object PBoxMagnify: TPaintBox
+      Left = 8
+      Height = 128
+      Top = 8
+      Width = 128
+    end
+    object LabelColorX: TLabel
+      Left = 9
+      Height = 17
+      Top = 461
+      Width = 127
+      AutoSize = False
+      Caption = 'X='
+      ParentColor = False
+    end
+    object LabelColorY: TLabel
+      Left = 8
+      Height = 17
+      Top = 482
+      Width = 123
+      AutoSize = False
+      Caption = 'Y='
+      ParentColor = False
+    end
+    object LabelColorZ: TLabel
+      Left = 8
+      Height = 17
+      Top = 504
+      Width = 127
+      AutoSize = False
+      Caption = 'Z='
+      ParentColor = False
+    end
+    object LabelColorLightness: TLabel
+      Left = 12
+      Height = 17
+      Top = 260
+      Width = 121
+      AutoSize = False
+      Caption = 'L='
+      ParentColor = False
+    end
+    object LabelColorBlack: TLabel
+      Left = 13
+      Height = 17
+      Top = 353
+      Width = 120
+      AutoSize = False
+      Caption = 'K='
+      ParentColor = False
+    end
+  end
+  object PanelGrids: TPanel
+    Left = 672
+    Height = 558
+    Top = 68
+    Width = 363
+    Align = alRight
+    ClientHeight = 558
+    ClientWidth = 363
+    TabOrder = 2
+    object GridFilterKoeff: TStringGrid
+      Left = 152
+      Height = 92
+      Top = 48
+      Width = 200
+      ColCount = 3
+      FixedCols = 0
+      FixedRows = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goSmoothScroll]
+      RowCount = 3
+      ScrollBars = ssNone
+      TabOrder = 0
+    end
+    object Label1: TLabel
+      Left = 152
+      Height = 17
+      Top = 8
+      Width = 75
+      Caption = 'Фильтрация'
+      ParentColor = False
+    end
+    object GridAffineKoeff: TStringGrid
+      Left = 8
+      Height = 92
+      Top = 48
+      Width = 136
+      ColCount = 2
+      FixedCols = 0
+      FixedRows = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goSmoothScroll]
+      RowCount = 3
+      ScrollBars = ssNone
+      TabOrder = 1
+    end
+    object LabelAffineGrid: TLabel
+      Left = 8
+      Height = 34
+      Top = 8
+      Width = 91
+      Caption = 'Аффинные '#10'коэффициенты'
+      ParentColor = False
+    end
+    object LabelFilterZnam: TLabel
+      Left = 152
+      Height = 17
+      Top = 25
+      Width = 80
+      Caption = 'Знаменатель'
+      ParentColor = False
+    end
+    object EditFilterZnam: TEdit
+      Left = 248
+      Height = 29
+      Top = 15
+      Width = 80
+      TabOrder = 2
+      Text = '1'
+    end
+    object ButtonFilterKoeff: TButton
+      Left = 152
+      Height = 25
+      Top = 144
+      Width = 200
+      Caption = 'OK'
+      OnClick = ButtonFilterKoeffClick
+      TabOrder = 3
+    end
+    object ButtonAffineKoeff: TButton
+      Left = 5
+      Height = 25
+      Top = 144
+      Width = 136
+      Caption = 'OK'
+      OnClick = ButtonAffineKoeffClick
+      TabOrder = 4
+    end
+    object ButtonAreasParams: TButton
+      Left = 8
+      Height = 25
+      Top = 240
+      Width = 342
+      Caption = 'OK'
+      OnClick = ButtonAreasParamsClick
+      TabOrder = 5
+    end
+    object EditAreasMinPixels: TEdit
+      Left = 8
+      Height = 29
+      Top = 192
+      Width = 96
+      TabOrder = 6
+      Text = '100'
+    end
+    object EditAreasContrast: TEdit
+      Left = 160
+      Height = 29
+      Top = 192
+      Width = 96
+      TabOrder = 7
+      Text = '100'
+    end
+    object LabelAreasMinPixels: TLabel
+      Left = 16
+      Height = 17
+      Top = 176
+      Width = 80
+      Caption = 'min пикселей'
+      ParentColor = False
+    end
+    object LabelAreasContrast: TLabel
+      Left = 160
+      Height = 17
+      Top = 176
+      Width = 143
+      Caption = 'Контрастность границы'
+      ParentColor = False
+    end
+    object CheckBoxShowImages: TCheckBox
+      Left = 8
+      Height = 23
+      Top = 218
+      Width = 141
+      Caption = 'показывать образы'
+      TabOrder = 8
+    end
+    object Edit_DFT_width: TEdit
+      Left = 16
+      Height = 29
+      Top = 296
+      Width = 115
+      TabOrder = 9
+      Text = '256'
+    end
+    object Button_DFT_params: TButton
+      Left = 8
+      Height = 25
+      Top = 328
+      Width = 344
+      Caption = 'OK'
+      OnClick = Button_DFT_paramsClick
+      TabOrder = 10
+    end
+    object Edit_DFT_height: TEdit
+      Left = 192
+      Height = 29
+      Top = 296
+      Width = 115
+      TabOrder = 11
+      Text = '256'
+    end
+    object Label2: TLabel
+      Left = 5
+      Height = 17
+      Top = 280
+      Width = 136
+      Caption = 'ширина БПФ-матрицы'
+      ParentColor = False
+    end
+    object Label3: TLabel
+      Left = 184
+      Height = 17
+      Top = 280
+      Width = 129
+      Caption = 'высота БПФ-матрицы'
+      ParentColor = False
+    end
+    object Label4: TLabel
+      Left = 12
+      Height = 17
+      Top = 360
+      Width = 49
+      Caption = 'Консоль'
+      ParentColor = False
+    end
+    object TextConsole: TMemo
+      Left = 5
+      Height = 176
+      Top = 376
+      Width = 347
+      Lines.Strings = (
+        'COGRA'
+      )
+      ScrollBars = ssBoth
+      TabOrder = 12
+      WordWrap = False
+    end
+  end
+  object ImageView: TPaintBox
+    Left = 144
+    Height = 558
+    Top = 68
+    Width = 528
+    Align = alClient
+    OnMouseDown = ImageViewMouseDown
+    OnMouseMove = ImageViewMouseMove
+    OnMouseUp = ImageViewMouseUp
+    OnPaint = ImageViewPaint
+  end
+  object PanelCollection: TPanel
+    Left = 0
+    Height = 68
+    Top = 0
+    Width = 1035
+    Align = alTop
+    ClientHeight = 68
+    ClientWidth = 1035
+    TabOrder = 3
+    object PBoxCollection: TPaintBox
+      Left = 1
+      Height = 54
+      Top = 1
+      Width = 1033
+      Align = alClient
+      OnMouseMove = PBoxCollectionMouseMove
+      OnMouseUp = PBoxCollectionMouseUp
+      OnPaint = PBoxCollectionPaint
+    end
+    object ScrollBarCollection: TScrollBar
+      Left = 1
+      Height = 12
+      Top = 55
+      Width = 1033
+      Align = alBottom
+      PageSize = 0
+      TabOrder = 0
+      OnChange = ScrollBarCollectionChange
+    end
+  end
+  object MainMenu: TMainMenu
+    left = 336
+    top = 16
+    object MenuItemFile: TMenuItem
+      Caption = 'Файл'
+      object MenuItemFileOpen: TMenuItem
+        Caption = 'Загрузить'
+        OnClick = MenuItemFileOpenClick
+      end
+      object MenuItemFileSave: TMenuItem
+        Caption = 'Сохранить'
+        OnClick = MenuItemFileSaveClick
+      end
+      object MenuItemLoadCollection: TMenuItem
+        Caption = 'Загрузить коллекцию'
+        OnClick = MenuItemLoadCollectionClick
+      end
+      object MenuItemSaveCollection: TMenuItem
+        Caption = 'Сохранить коллекцию'
+        OnClick = MenuItemSaveCollectionClick
+      end
+      object MenuItemPrint: TMenuItem
+        Caption = 'Печать'
+        OnClick = MenuItemPrintClick
+      end
+      object MenuItemExit: TMenuItem
+        Caption = 'Выход'
+        OnClick = MenuItemExitClick
+      end
+    end
+    object MenuItemEdit: TMenuItem
+      Caption = 'Правка'
+      object MenuItemEditMagnifity: TMenuItem
+        Caption = 'Лупа'
+        object MenuItemMagnify1: TMenuItem
+          Tag = 1
+          Caption = 'оригинал'
+          OnClick = MenuItemMagnify1Click
+        end
+        object MenuItemMagnify2: TMenuItem
+          Tag = 2
+          Caption = 'x2'
+          OnClick = MenuItemMagnify1Click
+        end
+        object MenuItemMagnify3: TMenuItem
+          Tag = 3
+          Caption = 'x3'
+          OnClick = MenuItemMagnify1Click
+        end
+        object MenuItemMagnify5: TMenuItem
+          Tag = 5
+          Caption = 'x5'
+          OnClick = MenuItemMagnify1Click
+        end
+        object MenuItemMagnify10: TMenuItem
+          Tag = 10
+          Caption = 'x10'
+          OnClick = MenuItemMagnify1Click
+        end
+        object MenuItemMagnify20: TMenuItem
+          Tag = 20
+          Caption = 'x20'
+          OnClick = MenuItemMagnify1Click
+        end
+      end
+      object MenuItemSelectAll: TMenuItem
+        Caption = 'Выделить все'
+        OnClick = MenuItemSelectAllClick
+      end
+      object MenuItemEditCopyFromLayer: TMenuItem
+        Caption = 'Копировать из слоя'
+        OnClick = MenuItemEditCopyFromLayerClick
+      end
+      object MenuItemEditCopyFromSummary: TMenuItem
+        Caption = 'Копировать из сводного'
+        OnClick = MenuItemEditCopyFromSummaryClick
+      end
+      object MenuItemEditCopyToCollection: TMenuItem
+        Caption = 'Копировать в коллекцию'
+        OnClick = MenuItemEditCopyToCollectionClick
+      end
+      object MenuItemEditPaste: TMenuItem
+        Caption = 'Вставить'
+        OnClick = MenuItemEditPasteClick
+      end
+      object MenuItemEditErase: TMenuItem
+        Caption = 'Удалить'
+        OnClick = MenuItemEditEraseClick
+      end
+      object MenuItemEditClear: TMenuItem
+        Caption = 'Очистить слой'
+        OnClick = MenuItemEditClearClick
+      end
+      object MenuItemClearCollection: TMenuItem
+        Caption = 'Очистить коллекцию'
+        OnClick = MenuItemClearCollectionClick
+      end
+    end
+    object MenuItemLayer: TMenuItem
+      Caption = 'Слой'
+      object MenuItemLayerSize: TMenuItem
+        Caption = 'Размер холста'
+        object MenuItemLayerSize8x8: TMenuItem
+          Tag = 1
+          Caption = '8x8'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize8x16: TMenuItem
+          Tag = 2
+          Caption = '8x16'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize32x32: TMenuItem
+          Tag = 3
+          Caption = '32x32'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize64x64: TMenuItem
+          Tag = 4
+          Caption = '64x64'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize256x256: TMenuItem
+          Tag = 5
+          Caption = '256x256'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize256x192: TMenuItem
+          Tag = 6
+          Caption = '256x192'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize320x200: TMenuItem
+          Tag = 7
+          Caption = '320x200'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize320x240: TMenuItem
+          Tag = 8
+          Caption = '320x240'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize512x384: TMenuItem
+          Tag = 9
+          Caption = '512x384'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize512x512: TMenuItem
+          Tag = 10
+          Caption = '512x512'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize640x480: TMenuItem
+          Tag = 11
+          Caption = '640x480'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize800x600: TMenuItem
+          Tag = 12
+          Caption = '800x600'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+        object MenuItemLayerSize1024x768: TMenuItem
+          Tag = 13
+          Caption = '1024x768'
+          OnClick = MenuItemLayerSize8x8Click
+        end
+      end
+      object MenuItemLayerTransparency: TMenuItem
+        Caption = 'Прозрачность слоя'
+        object MenuItemTransp0: TMenuItem
+          Caption = '0%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp10: TMenuItem
+          Tag = 10
+          Caption = '10%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp20: TMenuItem
+          Tag = 20
+          Caption = '20%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp30: TMenuItem
+          Tag = 30
+          Caption = '30%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp40: TMenuItem
+          Tag = 40
+          Caption = '40%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp50: TMenuItem
+          Tag = 50
+          Caption = '50%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp60: TMenuItem
+          Tag = 60
+          Caption = '60%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp70: TMenuItem
+          Tag = 70
+          Caption = '70%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp80: TMenuItem
+          Tag = 80
+          Caption = '80%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp90: TMenuItem
+          Tag = 90
+          Caption = '90%'
+          OnClick = MenuItemTransp0Click
+        end
+        object MenuItemTransp100: TMenuItem
+          Tag = 100
+          Caption = '100%'
+          OnClick = MenuItemTransp0Click
+        end
+      end
+      object MenuItemLayer0: TMenuItem
+        Caption = 'Слой 0'
+        OnClick = MenuItemLayer0Click
+      end
+      object MenuItemLayer1: TMenuItem
+        Tag = 1
+        Caption = 'Слой 1'
+        OnClick = MenuItemLayer0Click
+      end
+      object MenuItemLayer2: TMenuItem
+        Tag = 2
+        Caption = 'Слой 2'
+        OnClick = MenuItemLayer0Click
+      end
+    end
+    object MenuItemInstruments: TMenuItem
+      Caption = 'Инструменты'
+      object MenuItemSetPixel: TMenuItem
+        Tag = 1
+        Caption = 'Точка'
+        OnClick = MenuItemSetPixelClick
+      end
+      object MenuItemBrush: TMenuItem
+        Tag = 6
+        Caption = 'Кисточка'
+        OnClick = MenuItemSetPixelClick
+      end
+      object MenuItemLine: TMenuItem
+        Tag = 2
+        Caption = 'Отрезок'
+        OnClick = MenuItemSetPixelClick
+      end
+      object MenuItemRectangle: TMenuItem
+        Tag = 3
+        Caption = 'Прямоугольник'
+        OnClick = MenuItemSetPixelClick
+      end
+      object MenuItemEllipse: TMenuItem
+        Tag = 4
+        Caption = 'Эллипс'
+        OnClick = MenuItemSetPixelClick
+      end
+      object MenuItemFill: TMenuItem
+        Tag = 7
+        Caption = 'Заливка'
+        OnClick = MenuItemSetPixelClick
+      end
+      object MenuItemText: TMenuItem
+        Tag = 5
+        Caption = 'Текст'
+        OnClick = MenuItemSetPixelClick
+      end
+    end
+    object MenuItemGeneration: TMenuItem
+      Caption = 'Генерация'
+      object MenuItemNoise: TMenuItem
+        Caption = 'Шум'
+        OnClick = MenuItemNoiseClick
+      end
+      object MenuItemFunction: TMenuItem
+        Caption = 'Явная функция'
+        OnClick = MenuItemFunctionClick
+      end
+      object MenuItemFFunction: TMenuItem
+        Caption = 'Неявная функция'
+        OnClick = MenuItemFFunctionClick
+      end
+      object MenuItemTFunction: TMenuItem
+        Caption = 'Параметрическая функция'
+        OnClick = MenuItemTFunctionClick
+      end
+      object MenuItemCFunction: TMenuItem
+        Caption = 'Комплексная функция'
+        OnClick = MenuItemCFunctionClick
+      end
+      object MenuItemFractalJulia: TMenuItem
+        Caption = 'Фрактал Жюлиа'
+        OnClick = MenuItemFractalJuliaClick
+      end
+      object MenuItemFractalMandelbrot: TMenuItem
+        Caption = 'Фрактал Мандельброта'
+        OnClick = MenuItemFractalMandelbrotClick
+      end
+      object MenuItemFractalLandscape: TMenuItem
+        Caption = 'Фрактальный ландшафт'
+      end
+    end
+    object MenuItemAnalysis: TMenuItem
+      Caption = 'Спектральный анализ'
+      object MenuItemFourieAnalysis: TMenuItem
+        Caption = 'Фурье-анализ'
+        OnClick = MenuItemFourieAnalysisClick
+      end
+      object MenuItemIMGtoRedReFourie: TMenuItem
+        Caption = 'Красные Re коэффициенты из изображения'
+        OnClick = MenuItemIMGtoRedReFourieClick
+      end
+      object MenuItemIMGtoRedImFourie: TMenuItem
+        Caption = 'Красные Im коэффициенты из изображения'
+        OnClick = MenuItemIMGtoRedImFourieClick
+      end
+      object MenuItemIMGtoGreenReFourie: TMenuItem
+        Caption = 'Зеленые Re коэффициенты из изображения'
+        OnClick = MenuItemIMGtoGreenReFourieClick
+      end
+      object MenuItemIMGtoGreenImFourie: TMenuItem
+        Caption = 'Зеленые Im коэффициенты из изображения'
+        OnClick = MenuItemIMGtoGreenImFourieClick
+      end
+      object MenuItemIMGtoBlueReFourie: TMenuItem
+        Caption = 'Синие Re коэффициенты из изображения'
+        OnClick = MenuItemIMGtoBlueReFourieClick
+      end
+      object MenuItemIMGtoBlueImFourie: TMenuItem
+        Caption = 'Синие Im коэффициенты из изображения'
+        OnClick = MenuItemIMGtoBlueImFourieClick
+      end
+      object MenuItemFourieSynt: TMenuItem
+        Caption = 'Фурье-синтез'
+        OnClick = MenuItemFourieSyntClick
+      end
+      object MenuItemLowPassFourie: TMenuItem
+        Caption = 'Низкочастотный фильтр'
+        OnClick = MenuItemLowPassFourieClick
+      end
+      object MenuItemHighPassFourie: TMenuItem
+        Caption = 'Высокочастотный фильтр'
+        OnClick = MenuItemHighPassFourieClick
+      end
+      object MenuItemFourieKoeffsClean: TMenuItem
+        Caption = 'Очистить коэффициенты'
+        OnClick = MenuItemFourieKoeffsCleanClick
+      end
+    end
+    object MenuItemOIR: TMenuItem
+      Caption = 'Распознавание образов'
+      object MenuItemSearchRegions: TMenuItem
+        Caption = 'Поиск областей'
+        OnClick = MenuItemSearchRegionsClick
+      end
+      object MenuItemRecognition: TMenuItem
+        Caption = 'Распознать выделение'
+        OnClick = MenuItemRecognitionClick
+      end
+    end
+    object MenuItemProcs: TMenuItem
+      Caption = 'Обработка'
+      object MenuItemBrightnessDecrease: TMenuItem
+        Caption = 'Яркость (уменьшить на 10%)'
+        OnClick = MenuItemBrightnessDecreaseClick
+      end
+      object MenuItemBrightnessIncrease: TMenuItem
+        Caption = 'Яркость (увеличить на 10%)'
+        OnClick = MenuItemBrightnessIncreaseClick
+      end
+      object MenuItemContrastDecrease: TMenuItem
+        Caption = 'Контрастность (уменьшить)'
+        OnClick = MenuItemContrastDecreaseClick
+      end
+      object MenuItemContrastIncrease: TMenuItem
+        Caption = 'Контрастность (увеличить)'
+        OnClick = MenuItemContrastIncreaseClick
+      end
+      object MenuItemRedChannelClean: TMenuItem
+        Caption = 'Очистить красный канал'
+        OnClick = MenuItemRedChannelCleanClick
+      end
+      object MenuItemGreenChannelClean: TMenuItem
+        Caption = 'Очистить зеленый канал'
+        OnClick = MenuItemGreenChannelCleanClick
+      end
+      object MenuItemBlueChannelClean: TMenuItem
+        Caption = 'Очистить синий канал'
+        OnClick = MenuItemBlueChannelCleanClick
+      end
+      object MenuItemNegative: TMenuItem
+        Caption = 'Негатив'
+        OnClick = MenuItemNegativeClick
+      end
+      object MenuItemBlur: TMenuItem
+        Caption = 'Размытие'
+        OnClick = MenuItemBlurClick
+      end
+      object MenuItemContour: TMenuItem
+        Caption = 'Выделение контуров'
+        OnClick = MenuItemContourClick
+      end
+      object MenuItemSharpen: TMenuItem
+        Caption = 'Повышение резкости'
+        OnClick = MenuItemSharpenClick
+      end
+      object MenuItemDesaturation: TMenuItem
+        Caption = 'Обесцвечивание'
+        OnClick = MenuItemDesaturationClick
+      end
+      object MenuItemThreshold: TMenuItem
+        Caption = 'Преобразование в ЧБ'
+        object MenuItemThreshold0: TMenuItem
+          Caption = 'Порог 0%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold10: TMenuItem
+          Tag = 10
+          Caption = 'Порог 10%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold20: TMenuItem
+          Tag = 20
+          Caption = 'Порог 20%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold30: TMenuItem
+          Tag = 30
+          Caption = 'Порог 30%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold40: TMenuItem
+          Tag = 40
+          Caption = 'Порог 40%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold50: TMenuItem
+          Tag = 50
+          Caption = 'Порог 50%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold60: TMenuItem
+          Tag = 60
+          Caption = 'Порог 60%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold70: TMenuItem
+          Tag = 70
+          Caption = 'Порог 70%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold80: TMenuItem
+          Tag = 80
+          Caption = 'Порог 80%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold90: TMenuItem
+          Tag = 90
+          Caption = 'Порог 90%'
+          OnClick = MenuItemThreshold0Click
+        end
+        object MenuItemThreshold100: TMenuItem
+          Tag = 100
+          Caption = 'Порог 100%'
+          OnClick = MenuItemThreshold0Click
+        end
+      end
+      object MenuItemMatrixFilter: TMenuItem
+        Caption = 'Матричная фильтрация'
+        object MenuItemMatrixFilterAgain1: TMenuItem
+          Tag = 1
+          Caption = 'Повторить 1 раз'
+          OnClick = MenuItemMatrixFilterAgain1Click
+        end
+        object MenuItemMatrixFilterAgain5: TMenuItem
+          Tag = 5
+          Caption = 'Повторить 5 раз'
+          OnClick = MenuItemMatrixFilterAgain1Click
+        end
+        object MenuItemMatrixFilterAgain10: TMenuItem
+          Tag = 10
+          Caption = 'Повторить 10 раз'
+          OnClick = MenuItemMatrixFilterAgain1Click
+        end
+        object MenuItemMatrixFilterAgain100: TMenuItem
+          Tag = 100
+          Caption = 'Повторить 100 раз'
+          OnClick = MenuItemMatrixFilterAgain1Click
+        end
+        object MenuItemMatrixFilterAgain1000: TMenuItem
+          Tag = 1000
+          Caption = 'Повторить 1000 раз'
+          OnClick = MenuItemMatrixFilterAgain1Click
+        end
+      end
+      object MenuItemAffinne: TMenuItem
+        Caption = 'Аффинное преобразование'
+        OnClick = MenuItemAffinneClick
+      end
+      object MenuItemCrypt: TMenuItem
+        Caption = 'Криптография'
+        OnClick = MenuItemCryptClick
+      end
+    end
+    object MenuItemHelp: TMenuItem
+      Caption = 'Справка'
+      object MenuItemHelpUser: TMenuItem
+        Caption = 'Руководство пользователя'
+        OnClick = MenuItemHelpUserClick
+      end
+      object MenuItemHelpProgrammer: TMenuItem
+        Caption = 'Руководство программиста'
+        OnClick = MenuItemHelpProgrammerClick
+      end
+      object MenuItemHelpTeacher: TMenuItem
+        Caption = 'Методические рекомендации'
+        OnClick = MenuItemHelpTeacherClick
+      end
+      object MenuItemHelpAbout: TMenuItem
+        Caption = 'О программе'
+        OnClick = MenuItemHelpAboutClick
+      end
+    end
+  end
+  object PenColorDialog: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 376
+    top = 16
+  end
+  object BrushColorDialog: TColorDialog
+    Color = clBlack
+    CustomColors.Strings = (
+      'ColorA=000000'
+      'ColorB=000080'
+      'ColorC=008000'
+      'ColorD=008080'
+      'ColorE=800000'
+      'ColorF=800080'
+      'ColorG=808000'
+      'ColorH=808080'
+      'ColorI=C0C0C0'
+      'ColorJ=0000FF'
+      'ColorK=00FF00'
+      'ColorL=00FFFF'
+      'ColorM=FF0000'
+      'ColorN=FF00FF'
+      'ColorO=FFFF00'
+      'ColorP=FFFFFF'
+      'ColorQ=C0DCC0'
+      'ColorR=F0CAA6'
+      'ColorS=F0FBFF'
+      'ColorT=A4A0A0'
+    )
+    left = 424
+    top = 16
+  end
+  object OpenPictureDialog: TOpenPictureDialog
+    Options = [ofAllowMultiSelect, ofEnableSizing, ofViewDetail]
+    left = 464
+    top = 16
+  end
+  object SavePictureDialog: TSavePictureDialog
+    left = 512
+    top = 16
+  end
+  object PrintPictureDialog: TPrintDialog
+    left = 568
+    top = 16
+  end
+  object SelectDirectoryDialog: TSelectDirectoryDialog
+    left = 296
+    top = 16
+  end
+end
