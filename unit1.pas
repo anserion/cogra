@@ -69,6 +69,14 @@ type
     LabelColorRed: TLabel;
     LabelColorSaturation: TLabel;
     LabelColorvalue: TLabel;
+    MenuItemAdaptiveMedianFilter: TMenuItem;
+    MenuItemMedianFilter: TMenuItem;
+    MenuItemCircle: TMenuItem;
+    MenuItemDePepper: TMenuItem;
+    MenuItemDePepperShow: TMenuItem;
+    MenuItemSault: TMenuItem;
+    MenuItemPepper: TMenuItem;
+    MenuItemSaultPepper: TMenuItem;
     TextConsole: TMemo;
     MenuItemFractalLandscape: TMenuItem;
     MenuItemFractalMandelbrot: TMenuItem;
@@ -230,7 +238,11 @@ type
     procedure LabelLayerCodeClick(Sender: TObject);
     procedure LabelLayerTranspClick(Sender: TObject);
     procedure LabelPenSizeClick(Sender: TObject);
+    procedure MenuItemAdaptiveMedianFilterClick(Sender: TObject);
     procedure MenuItemBlueChannelCleanClick(Sender: TObject);
+    procedure MenuItemCircleClick(Sender: TObject);
+    procedure MenuItemDePepperClick(Sender: TObject);
+    procedure MenuItemDePepperShowClick(Sender: TObject);
     procedure MenuItemFractalMandelbrotClick(Sender: TObject);
     procedure MenuItemGreenChannelCleanClick(Sender: TObject);
     procedure MenuItemAffinneClick(Sender: TObject);
@@ -269,11 +281,15 @@ type
     procedure MenuItemLoadCollectionClick(Sender: TObject);
     procedure MenuItemMagnify1Click(Sender: TObject);
     procedure MenuItemMatrixFilterAgain1Click(Sender: TObject);
+    procedure MenuItemMedianFilterClick(Sender: TObject);
     procedure MenuItemNegativeClick(Sender: TObject);
     procedure MenuItemNoiseClick(Sender: TObject);
+    procedure MenuItemPepperClick(Sender: TObject);
     procedure MenuItemPrintClick(Sender: TObject);
     procedure MenuItemRecognitionClick(Sender: TObject);
     procedure MenuItemRedChannelCleanClick(Sender: TObject);
+    procedure MenuItemSaultClick(Sender: TObject);
+    procedure MenuItemSaultPepperClick(Sender: TObject);
     procedure MenuItemSaveCollectionClick(Sender: TObject);
     procedure MenuItemSearchRegionsClick(Sender: TObject);
     procedure MenuItemSelectAllClick(Sender: TObject);
@@ -825,6 +841,12 @@ begin
           for i:=1 to PenSize do
             WorkIMG.Ellipse(MouseCoords[0].X,MouseCoords[0].Y,i div 2,i div 2, PenColor);
         end;
+     8: begin //окружность
+          WorkIMG.clrscr(-1);
+          WorkIMG.Circle(MouseCoords[1].X,MouseCoords[1].Y,
+                          abs((MouseCoords[0].X-MouseCoords[1].X)div 2),
+                          PenColor);
+        end;
     end;
   //отрисовка
   DontComposeLayersFlag:=true;
@@ -902,11 +924,44 @@ begin
   RefreshStatusBar;
 end;
 
+//Адаптивный медианный фильтр от соли и перца
+procedure TForm1.MenuItemAdaptiveMedianFilterClick(Sender: TObject);
+var FilterRadius:integer;
+begin
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  FilterRadius:=StrToInt(InputBox('Радиус фильтрации','Введите радиус фильтрации','5'));
+  FilterAdaptiveMedian(SelIMG,FilterRadius);
+  SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
 //очистить синий канал цвета изображения
 procedure TForm1.MenuItemBlueChannelCleanClick(Sender: TObject);
 begin
   SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   FilterColorCorrection(SelIMG, 1,1,0);
+  SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
+procedure TForm1.MenuItemCircleClick(Sender: TObject);
+begin
+
+end;
+
+//Восстановление от соли и перца зашумленного изображения
+procedure TForm1.MenuItemDePepperClick(Sender: TObject);
+begin
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  FilterDePepper(SelIMG,false);
+  SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
+procedure TForm1.MenuItemDePepperShowClick(Sender: TObject);
+begin
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  FilterDePepper(SelIMG,true);
   SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   ComposeImageView;
 end;
@@ -1480,6 +1535,17 @@ begin
   ComposeImageView;
 end;
 
+//Медианный фильтр
+procedure TForm1.MenuItemMedianFilterClick(Sender: TObject);
+var FilterRadius:integer;
+begin
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  FilterRadius:=StrToInt(InputBox('Радиус фильтрации','Введите радиус фильтрации','3'));
+  FilterMedian(SelIMG,FilterRadius);
+  SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
 //фильтр обращения цветов
 procedure TForm1.MenuItemNegativeClick(Sender: TObject);
 begin
@@ -1497,6 +1563,17 @@ begin
   SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   NoiseLevel:=StrToFloat(InputBox('процент зашумления','Введите процент зашумления','100'));
   FilterNoise(SelIMG,NoiseLevel);
+  SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
+//зашумление пикселями черного цвета
+procedure TForm1.MenuItemPepperClick(Sender: TObject);
+var NoiseLevel:real;
+begin
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  NoiseLevel:=StrToFloat(InputBox('процент зашумления','Введите процент зашумления','100'));
+  FilterSaultPepper(SelIMG,NoiseLevel);
   SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   ComposeImageView;
 end;
@@ -1544,6 +1621,28 @@ procedure TForm1.MenuItemRedChannelCleanClick(Sender: TObject);
 begin
   SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   FilterColorCorrection(SelIMG, 0,1,1);
+  SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
+//зашумление пикселями белого цвета
+procedure TForm1.MenuItemSaultClick(Sender: TObject);
+var NoiseLevel:real;
+begin
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  NoiseLevel:=StrToFloat(InputBox('процент зашумления','Введите процент зашумления','100'));
+  FilterSault(SelIMG,NoiseLevel);
+  SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
+//зашумление пикселями белого и черного цвета
+procedure TForm1.MenuItemSaultPepperClick(Sender: TObject);
+var NoiseLevel:real;
+begin
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  NoiseLevel:=StrToFloat(InputBox('процент зашумления','Введите процент зашумления','100'));
+  FilterSaultPepper(SelIMG,NoiseLevel);
   SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   ComposeImageView;
 end;

@@ -4,15 +4,15 @@ object Form1: TForm1
   Top = 0
   Width = 1035
   Caption = 'Шаблон программ дисциплины "Компьютерная графика" v0.95 (автор Ионисян А.С.)'
-  ClientHeight = 690
+  ClientHeight = 684
   ClientWidth = 1035
   Menu = MainMenu
   OnCreate = FormCreate
-  LCLVersion = '1.4.4.0'
+  LCLVersion = '1.6.0.4'
   object PanelStatus: TPanel
     Left = 0
     Height = 64
-    Top = 626
+    Top = 620
     Width = 1035
     Align = alBottom
     Alignment = taLeftJustify
@@ -22,97 +22,97 @@ object Form1: TForm1
     TabOrder = 0
     object LabelMouseCoords: TLabel
       Left = 200
-      Height = 17
+      Height = 23
       Top = 24
-      Width = 41
+      Width = 58
       Caption = 'Мышь:'
       ParentColor = False
     end
     object LabelColorPen: TLabel
       Left = 8
-      Height = 17
+      Height = 23
       Top = 0
-      Width = 97
+      Width = 136
       Caption = 'Цвет рисования'
       ParentColor = False
       OnClick = LabelColorPenClick
     end
     object LabelPBoxMainSize: TLabel
       Left = 200
-      Height = 17
+      Height = 23
       Top = 0
-      Width = 54
+      Width = 76
       Caption = 'Полотно:'
       ParentColor = False
     end
     object LabelInstrumentName: TLabel
       Left = 600
-      Height = 17
+      Height = 23
       Top = 0
-      Width = 75
+      Width = 106
       Caption = 'Инструмент:'
       ParentColor = False
     end
     object LabelFileName: TLabel
       Left = 8
-      Height = 17
+      Height = 23
       Top = 45
-      Width = 35
+      Width = 50
       Caption = 'Файл:'
       ParentColor = False
       OnClick = MenuItemFileOpenClick
     end
     object LabelLayerCode: TLabel
       Left = 400
-      Height = 17
+      Height = 23
       Top = 0
-      Width = 33
+      Width = 47
       Caption = 'Слой:'
       ParentColor = False
       OnClick = LabelLayerCodeClick
     end
     object LabelLayerTransp: TLabel
       Left = 400
-      Height = 17
+      Height = 23
       Top = 24
-      Width = 87
+      Width = 122
       Caption = 'Прозрачность:'
       ParentColor = False
       OnClick = LabelLayerTranspClick
     end
     object LabelPenSize: TLabel
       Left = 600
-      Height = 17
+      Height = 23
       Top = 24
-      Width = 33
+      Width = 47
       Caption = 'Перо:'
       ParentColor = False
       OnClick = LabelPenSizeClick
     end
     object LabelMagnify: TLabel
       Left = 6
-      Height = 17
+      Height = 23
       Top = 24
-      Width = 32
+      Width = 47
       Caption = 'Лупа:'
       ParentColor = False
     end
     object LabelCollection: TLabel
       Left = 752
-      Height = 17
+      Height = 23
       Top = 24
-      Width = 67
+      Width = 97
       Caption = 'Коллекция:'
       ParentColor = False
     end
   end
   object PanelColor: TPanel
     Left = 0
-    Height = 558
+    Height = 552
     Top = 68
     Width = 144
     Align = alLeft
-    ClientHeight = 558
+    ClientHeight = 552
     ClientWidth = 144
     TabOrder = 1
     object LabelColorRed: TLabel
@@ -277,11 +277,11 @@ object Form1: TForm1
   end
   object PanelGrids: TPanel
     Left = 672
-    Height = 558
+    Height = 552
     Top = 68
     Width = 363
     Align = alRight
-    ClientHeight = 558
+    ClientHeight = 552
     ClientWidth = 363
     TabOrder = 2
     object GridFilterKoeff: TStringGrid
@@ -299,9 +299,9 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 152
-      Height = 17
+      Height = 23
       Top = 8
-      Width = 75
+      Width = 105
       Caption = 'Фильтрация'
       ParentColor = False
     end
@@ -320,23 +320,23 @@ object Form1: TForm1
     end
     object LabelAffineGrid: TLabel
       Left = 8
-      Height = 34
+      Height = 46
       Top = 8
-      Width = 91
+      Width = 126
       Caption = 'Аффинные '#10'коэффициенты'
       ParentColor = False
     end
     object LabelFilterZnam: TLabel
       Left = 152
-      Height = 17
+      Height = 23
       Top = 25
-      Width = 80
+      Width = 113
       Caption = 'Знаменатель'
       ParentColor = False
     end
     object EditFilterZnam: TEdit
       Left = 248
-      Height = 29
+      Height = 33
       Top = 15
       Width = 80
       TabOrder = 2
@@ -371,7 +371,7 @@ object Form1: TForm1
     end
     object EditAreasMinPixels: TEdit
       Left = 8
-      Height = 29
+      Height = 33
       Top = 192
       Width = 96
       TabOrder = 6
@@ -379,7 +379,7 @@ object Form1: TForm1
     end
     object EditAreasContrast: TEdit
       Left = 160
-      Height = 29
+      Height = 33
       Top = 192
       Width = 96
       TabOrder = 7
@@ -387,31 +387,31 @@ object Form1: TForm1
     end
     object LabelAreasMinPixels: TLabel
       Left = 16
-      Height = 17
+      Height = 23
       Top = 176
-      Width = 80
+      Width = 115
       Caption = 'min пикселей'
       ParentColor = False
     end
     object LabelAreasContrast: TLabel
       Left = 160
-      Height = 17
+      Height = 23
       Top = 176
-      Width = 143
+      Width = 200
       Caption = 'Контрастность границы'
       ParentColor = False
     end
     object CheckBoxShowImages: TCheckBox
       Left = 8
-      Height = 23
+      Height = 25
       Top = 218
-      Width = 141
+      Width = 188
       Caption = 'показывать образы'
       TabOrder = 8
     end
     object Edit_DFT_width: TEdit
       Left = 16
-      Height = 29
+      Height = 33
       Top = 296
       Width = 115
       TabOrder = 9
@@ -428,7 +428,7 @@ object Form1: TForm1
     end
     object Edit_DFT_height: TEdit
       Left = 192
-      Height = 29
+      Height = 33
       Top = 296
       Width = 115
       TabOrder = 11
@@ -436,25 +436,25 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 5
-      Height = 17
+      Height = 23
       Top = 280
-      Width = 136
+      Width = 189
       Caption = 'ширина БПФ-матрицы'
       ParentColor = False
     end
     object Label3: TLabel
       Left = 184
-      Height = 17
+      Height = 23
       Top = 280
-      Width = 129
+      Width = 180
       Caption = 'высота БПФ-матрицы'
       ParentColor = False
     end
     object Label4: TLabel
       Left = 12
-      Height = 17
+      Height = 23
       Top = 360
-      Width = 49
+      Width = 70
       Caption = 'Консоль'
       ParentColor = False
     end
@@ -473,7 +473,7 @@ object Form1: TForm1
   end
   object ImageView: TPaintBox
     Left = 144
-    Height = 558
+    Height = 552
     Top = 68
     Width = 528
     Align = alClient
@@ -493,7 +493,7 @@ object Form1: TForm1
     TabOrder = 3
     object PBoxCollection: TPaintBox
       Left = 1
-      Height = 54
+      Height = 52
       Top = 1
       Width = 1033
       Align = alClient
@@ -503,8 +503,8 @@ object Form1: TForm1
     end
     object ScrollBarCollection: TScrollBar
       Left = 1
-      Height = 12
-      Top = 55
+      Height = 14
+      Top = 53
       Width = 1033
       Align = alBottom
       PageSize = 0
@@ -774,6 +774,11 @@ object Form1: TForm1
         Caption = 'Прямоугольник'
         OnClick = MenuItemSetPixelClick
       end
+      object MenuItemCircle: TMenuItem
+        Tag = 8
+        Caption = 'Окружность'
+        OnClick = MenuItemSetPixelClick
+      end
       object MenuItemEllipse: TMenuItem
         Tag = 4
         Caption = 'Эллипс'
@@ -795,6 +800,18 @@ object Form1: TForm1
       object MenuItemNoise: TMenuItem
         Caption = 'Шум'
         OnClick = MenuItemNoiseClick
+      end
+      object MenuItemSault: TMenuItem
+        Caption = 'Соль'
+        OnClick = MenuItemSaultClick
+      end
+      object MenuItemPepper: TMenuItem
+        Caption = 'Перец'
+        OnClick = MenuItemPepperClick
+      end
+      object MenuItemSaultPepper: TMenuItem
+        Caption = 'Соль и перец'
+        OnClick = MenuItemSaultPepperClick
       end
       object MenuItemFunction: TMenuItem
         Caption = 'Явная функция'
@@ -927,6 +944,22 @@ object Form1: TForm1
       object MenuItemSharpen: TMenuItem
         Caption = 'Повышение резкости'
         OnClick = MenuItemSharpenClick
+      end
+      object MenuItemMedianFilter: TMenuItem
+        Caption = 'Медианный фильтр'
+        OnClick = MenuItemMedianFilterClick
+      end
+      object MenuItemAdaptiveMedianFilter: TMenuItem
+        Caption = 'Адаптивный медианный фильтр от соли и перца'
+        OnClick = MenuItemAdaptiveMedianFilterClick
+      end
+      object MenuItemDePepper: TMenuItem
+        Caption = 'Триангуляция от соли и перца'
+        OnClick = MenuItemDePepperClick
+      end
+      object MenuItemDePepperShow: TMenuItem
+        Caption = 'Показать триангуляцию (соль перец)'
+        OnClick = MenuItemDePepperShowClick
       end
       object MenuItemDesaturation: TMenuItem
         Caption = 'Обесцвечивание'

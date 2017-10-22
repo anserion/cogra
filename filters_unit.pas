@@ -44,8 +44,21 @@ procedure FilterBlur(img:TIMG);
 procedure FilterContour(img:TIMG);
 //фильтр повышения резкости
 procedure FilterSharpen(img:TIMG);
+//медианный фильтр
+procedure FilterMedian(img:TIMG; Radius:integer);
+//Адаптивный медианный фильтр от соли и перца
+procedure FilterAdaptiveMedian(img:TIMG; Radius:integer);
 //фильтр зашумления
 procedure FilterNoise(img:TIMG; NoisePercent:real);
+//фильтр зашумления "солью" NoisePercent пикселей засвечиваются белым цветом
+procedure FilterSault(img:TIMG; NoisePercent:real);
+//фильтр зашумления "перцем" NoisePercent пикселей засвечиваются черным цветом
+procedure FilterPepper(img:TIMG; NoisePercent:real);
+//фильтр зашумления "солью и перцем" NoisePercent пикселей засвечиваются
+//или белым или черным цветом
+procedure FilterSaultPepper(img:TIMG; NoisePercent:real);
+//фильтр восстановления изображения от соли и перца
+procedure FilterDePepper(img:TIMG; show_triangles:boolean);
 //фильтр обращения (инверсии) цветов
 procedure FilterNegative(img:TIMG);
 //фильтр коррекции цветов (умножается на соответствующий коэффициент каждая компонета)
@@ -206,7 +219,7 @@ procedure FilterContour(img:TIMG);
 var tmp_IMG:TImg;
 begin
   tmp_IMG:=TImg.Create;
-  tmp_IMG.SetSize(SelIMG.width,SelIMG.height);
+  tmp_IMG.SetSize(IMG.width,IMG.height);
   MatrixFilter_k11:=0;
   MatrixFilter_k12:=-1;
   MatrixFilter_k13:=0;
@@ -229,7 +242,7 @@ procedure FilterSharpen(img:TIMG);
 var tmp_IMG:TImg;
 begin
   tmp_IMG:=TImg.Create;
-  tmp_IMG.SetSize(SelIMG.width,SelIMG.height);
+  tmp_IMG.SetSize(IMG.width,IMG.height);
   MatrixFilter_k11:=0;
   MatrixFilter_k12:=-1;
   MatrixFilter_k13:=0;
@@ -247,6 +260,104 @@ begin
   tmp_IMG.done;
 end;
 
+//медианный фильтр
+procedure FilterMedian(img:TIMG; Radius:integer);
+var x,y,i,j,k,N,r,g,b:integer;
+    tmp_img,filter_img:TIMG;
+    red_data,green_data,blue_data:array of integer;
+    C:Int32;
+begin
+     N:=Radius*Radius;
+     tmp_img:=TIMG.create;
+     tmp_IMG.SetSize(IMG.width,IMG.height);
+     tmp_img.FillRect(0,0,tmp_img.width-1,tmp_img.height-1,0);
+
+     filter_img:=TIMG.create;
+     filter_img.SetSize(Radius,Radius);
+
+     setlength(red_data,N);
+     setlength(green_data,N);
+     setlength(blue_data,N);
+
+     for y:=radius to img.height-radius-1 do
+     for x:=radius to img.width-radius-1 do
+     begin
+       img.CopyRect(filter_img,RECT(x,y,x+radius,y+radius),RECT(0,0,radius-1,radius-1));
+       k:=0;
+       for i:=0 to radius-1 do
+       for j:=0 to radius-1 do
+       begin
+           C:=filter_img.GetPixel(i,j);
+           red_data[k]:=red(C);
+           green_data[k]:=green(C);
+           blue_data[k]:=blue(C);
+           k:=k+1;
+       end;
+
+       quick_sort(red_data,0,N-1); r:=red_data[N div 2];
+       quick_sort(green_data,0,N-1); g:=green_data[N div 2];
+       quick_sort(blue_data,0,N-1); b:=blue_data[N div 2];
+       tmp_img.SetPixel(x,y,RGBToColor(r,g,b));
+     end;
+     tmp_IMG.CloneToIMG(img);
+
+     setlength(red_data,0);
+     setlength(green_data,0);
+     setlength(blue_data,0);
+     tmp_img.done; filter_img.done;
+end;
+
+//Адаптивный медианный фильтр от соли и перца
+procedure FilterAdaptiveMedian(img:TIMG; Radius:integer);
+var x,y,i,j,k,N,r,g,b:integer;
+    tmp_img,filter_img:TIMG;
+    red_data,green_data,blue_data:array of integer;
+    pepper_color,sault_color,C:Int32;
+begin
+     N:=Radius*Radius;
+     pepper_color:=0; sault_color:=65536*255+256*255+255;
+     tmp_img:=TIMG.create;
+     tmp_IMG.SetSize(IMG.width,IMG.height);
+     tmp_img.FillRect(0,0,tmp_img.width-1,tmp_img.height-1,0);
+
+     filter_img:=TIMG.create;
+     filter_img.SetSize(Radius,Radius);
+
+     setlength(red_data,N);
+     setlength(green_data,N);
+     setlength(blue_data,N);
+
+     for y:=radius to img.height-radius-1 do
+     for x:=radius to img.width-radius-1 do
+     begin
+       img.CopyRect(filter_img,RECT(x,y,x+radius,y+radius),RECT(0,0,radius-1,radius-1));
+       k:=0;
+       for i:=0 to radius-1 do
+       for j:=0 to radius-1 do
+       begin
+           C:=filter_img.GetPixel(i,j);
+           if (C<>pepper_color)and(C<>sault_color) then
+           begin
+                red_data[k]:=red(C);
+                green_data[k]:=green(C);
+                blue_data[k]:=blue(C);
+                k:=k+1;
+           end;
+       end;
+
+       quick_sort(red_data,0,k-1); r:=red_data[k div 2];
+       quick_sort(green_data,0,k-1); g:=green_data[k div 2];
+       quick_sort(blue_data,0,k-1); b:=blue_data[k div 2];
+       tmp_img.SetPixel(x,y,RGBToColor(r,g,b));
+     end;
+     tmp_IMG.CloneToIMG(img);
+
+     setlength(red_data,0);
+     setlength(green_data,0);
+     setlength(blue_data,0);
+     tmp_img.done; filter_img.done;
+end;
+
 //фильтр зашумления
 procedure  FilterNoise(img:TIMG; NoisePercent:real);
 var x,y:integer;
@@ -256,6 +367,247 @@ begin
   begin
     if random*100<NoisePercent then img.SetPixel(x,y,random(256*256*256));
   end;
+end;
+
+//фильтр зашумления "солью" NoisePercent пикселей засвечиваются белым цветом
+procedure FilterSault(img:TIMG; NoisePercent:real);
+var x,y:integer;
+begin
+  for y:=0 to img.height-1 do
+  for x:=0 to img.width-1 do
+  begin
+    if random*100<NoisePercent then img.SetPixel(x,y,65536*255+256*255+255);
+  end;
+end;
+
+//фильтр зашумления "перцем" NoisePercent пикселей засвечиваются черным цветом
+procedure FilterPepper(img:TIMG; NoisePercent:real);
+var x,y:integer;
+begin
+  for y:=0 to img.height-1 do
+  for x:=0 to img.width-1 do
+  begin
+    if random*100<NoisePercent then img.SetPixel(x,y,0);
+  end;
+end;
+
+//фильтр зашумления "солью и перцем" NoisePercent пикселей засвечиваются
+//или белым или черным цветом
+procedure FilterSaultPepper(img:TIMG; NoisePercent:real);
+var x,y:integer;
+begin
+  for y:=0 to img.height-1 do
+  for x:=0 to img.width-1 do
+  begin
+    if random*100<NoisePercent then img.SetPixel(x,y,Random(2)*(65536*255+256*255+255));
+  end;
+end;
+
+//фильтр восстановления изображения от соли и перца
+procedure FilterDePepper(img:TIMG; show_triangles:boolean);
+
+//расчет квадрата расстояния между точками
+function distance2(x1,y1,x2,y2:integer):real;
+begin distance2:=sqr(x1-x2)+sqr(y1-y2); end;
+//расчет площади треугольника по формуле Герона
+function S_triangle(a,b,c:real):real;
+var p:real;
+begin
+     p:=(a+b+c)/2;
+     S_triangle:=sqrt(p*(p-a)*(p-b)*(p-c));
+end;
+//определение принадлежности точки треугольнику
+// -1 - не принадлежит треугольнику
+// 0 - внутри треугольника
+// 1 - лежит на стороне 1-2
+// 2 - лежит на стороне 1-3
+// 3 - лежит на стороне 2-3
+// 4 - совпадает с первой вершиной
+// 5 - совпадает со второй вершиной
+// 6 - совпадает с третьей вершиной
+// 7 - треугольник настолько мал, что "совпадает" с точкой
+function inside_triangle(x,y,x1,y1,x2,y2,x3,y3:integer):integer;
+var xa,xb,xc,ab,ac,bc,S_abc,S_axb,S_axc,S_bxc,epsilon:real; tmp:integer;
+begin
+     xa:=sqrt(distance2(x,y,x1,y1));
+     xb:=sqrt(distance2(x,y,x2,y2));
+     xc:=sqrt(distance2(x,y,x3,y3));
+     ab:=sqrt(distance2(x1,y1,x2,y2));
+     ac:=sqrt(distance2(x1,y1,x3,y3));
+     bc:=sqrt(distance2(x2,y2,x3,y3));
+     epsilon:=0.001;
+     s_abc:=S_triangle(ab,ac,bc);
+     S_axb:=S_triangle(ab,xa,xb);
+     S_axc:=S_triangle(ac,xa,xc);
+     S_bxc:=S_triangle(bc,xb,xc);
+     tmp:=-1;
+     if abs(S_axb+S_axc+S_bxc-S_abc)<epsilon then tmp:=0;
+     if S_axb<epsilon then tmp:=1;
+     if S_axc<epsilon then tmp:=-1;//2;
+     if S_bxc<epsilon then tmp:=-1;//3;
+     if (S_axb<epsilon)and(S_axc<epsilon) then tmp:=-1;//4;
+     if (S_axb<epsilon)and(S_bxc<epsilon) then tmp:=-1;//5;
+     if (S_axc<epsilon)and(S_bxc<epsilon) then tmp:=-1;//6;
+     if (S_axb<epsilon)and(S_axc<epsilon)and(S_bxc<epsilon) then tmp:=-1;//7;
+     inside_triangle:=tmp;
+end;
+
+var x,y,i,j,x1,y1,x2,y2,x3,y3,p1,p2,p3,tmp:integer;
+    good_points_num,triangles_num,triangle_state:integer;
+    c,c1,c2,c3,pepper_color,sault_color:Int32;
+    good_points:array of record x,y:integer; c:Int32; end;
+    good_points_order:array of integer;
+    triangles:array of record p1,p2,p3:integer; end;
+begin
+     pepper_color:=0; sault_color:=65536*255+256*255+255;
+     //подсчет числа неискаженных точек изображения
+     good_points_num:=0;
+     for y:=0 to img.height-1 do
+     for x:=0 to img.width-1 do
+     begin
+          c:=img.GetPixel(x,y);
+          if (c<>pepper_color)and(c<>sault_color) then good_points_num:=good_points_num+1;
+     end;
+     good_points_num:=good_points_num+4;
+
+     //занесение координат и цветов всех неискаженных точек в массив
+     setlength(good_points,good_points_num+1);
+     //первые четыре точки - дополнительные (упрощают триангуляцию)
+     good_points[1].x:=0; good_points[1].y:=0;
+     good_points[2].x:=img.width-1; good_points[2].y:=0;
+     good_points[3].x:=0; good_points[3].y:=img.height-1;
+     good_points[4].x:=img.width-1; good_points[4].y:=img.height-1;
+
+     good_points[1].c:=img.GetPixel(good_points[1].x,good_points[1].y);
+     good_points[2].c:=img.GetPixel(good_points[2].x,good_points[2].y);
+     good_points[3].c:=img.GetPixel(good_points[3].x,good_points[3].y);
+     good_points[4].c:=img.GetPixel(good_points[4].x,good_points[4].y);
+     i:=4;
+     for y:=0 to img.height-1 do
+     for x:=0 to img.width-1 do
+     begin
+          c:=img.GetPixel(x,y);
+          if (c<>pepper_color)and(c<>sault_color) then
+          begin
+               i:=i+1;
+               good_points[i].x:=x;
+               good_points[i].y:=y;
+               good_points[i].c:=c;
+          end;
+     end;
+
+     //триангуляция
+     setlength(good_points_order,good_points_num+1);
+     for i:=1 to good_points_num do good_points_order[i]:=i;
+     //перемешиваем точки-вершины треугольников триангуляции
+     for i:=5 to good_points_num do
+     begin
+       j:=random(good_points_num-5)+5;
+       tmp:=good_points_order[i];
+       good_points_order[i]:=good_points_order[j];
+       good_points_order[j]:=tmp;
+     end;
+
+     setlength(triangles,good_points_num*3);
+     //первые два треугольника задают ограничивающую оболочку
+     triangles_num:=2;
+     triangles[1].p1:=1; triangles[1].p2:=2; triangles[1].p3:=3;
+     triangles[2].p1:=2; triangles[2].p2:=3; triangles[2].p3:=4;
+     //анализируем точки, начиная с пятой, так как первые четыре задают оболочку
+     for i:=5 to good_points_num do
+     begin
+       //берем новую точку для проверки на более глубокую триангуляцию
+       x:=good_points[good_points_order[i]].x;
+       y:=good_points[good_points_order[i]].y;
+       //перебираем все имеющиеся треугольники
+       j:=1;
+       repeat
+         p1:=triangles[j].p1;
+         p2:=triangles[j].p2;
+         p3:=triangles[j].p3;
+         x1:=good_points[p1].x; y1:=good_points[p1].y;
+         x2:=good_points[p2].x; y2:=good_points[p2].y;
+         x3:=good_points[p3].x; y3:=good_points[p3].y;
+         //определяем положение анализируемой точки относительно текущего треугольника
+         triangle_state:=inside_triangle(x,y,x1,y1,x2,y2,x3,y3);
+         //если точка внутри треугольника, то разбиваем его на 3 треугольника
+         if triangle_state=0 then
+         begin
+           triangles[j].p3:=good_points_order[i];
+           triangles_num:=triangles_num+1;
+           triangles[triangles_num].p1:=p2;
+           triangles[triangles_num].p2:=p3;
+           triangles[triangles_num].p3:=good_points_order[i];
+           triangles_num:=triangles_num+1;
+           triangles[triangles_num].p1:=p1;
+           triangles[triangles_num].p2:=p3;
+           triangles[triangles_num].p3:=good_points_order[i];
+         end;
+(*
+         //если точка на ребре 1-2, то разбиваем треугольник на два
+         if triangle_state=1 then
+         begin
+           triangles[j].p2:=good_points_order[i];
+           triangles_num:=triangles_num+1;
+           triangles[triangles_num].p1:=good_points_order[i];;
+           triangles[triangles_num].p2:=p2;
+           triangles[triangles_num].p3:=p3;
+         end;
+         //если точка на ребре 1-3, то разбиваем треугольник на два
+         if triangle_state=2 then
+         begin
+           triangles[j].p3:=good_points_order[i];
+           triangles_num:=triangles_num+1;
+           triangles[triangles_num].p1:=good_points_order[i];;
+           triangles[triangles_num].p2:=p2;
+           triangles[triangles_num].p3:=p3;
+         end;
+         //если точка на ребре 2-3, то разбиваем треугольник на два
+         if triangle_state=3 then
+         begin
+           triangles[j].p3:=good_points_order[i];
+           triangles_num:=triangles_num+1;
+           triangles[triangles_num].p1:=good_points_order[i];;
+           triangles[triangles_num].p2:=p1;
+           triangles[triangles_num].p3:=p3;
+         end;
+*)
+         j:=j+1;
+       until j>triangles_num;
+     end;
+
+     //вывод треугольников на экран
+     for i:=1 to triangles_num do
+     begin
+          p1:=triangles[i].p1;
+          p2:=triangles[i].p2;
+          p3:=triangles[i].p3;
+          x1:=good_points[p1].x; y1:=good_points[p1].y; c1:=good_points[p1].c;
+          x2:=good_points[p2].x; y2:=good_points[p2].y; c2:=good_points[p2].c;
+          x3:=good_points[p3].x; y3:=good_points[p3].y; c3:=good_points[p3].c;
+          img.GuroTriangle(x1,y1,x2,y2,x3,y3,c1,c2,c3);
+     end;
+
+     //если включен режим демонстрации триангуляции (рисование контуров треугольников)
+     if show_triangles then
+     for i:=1 to triangles_num do
+     begin
+          p1:=triangles[i].p1;
+          p2:=triangles[i].p2;
+          p3:=triangles[i].p3;
+          x1:=good_points[p1].x; y1:=good_points[p1].y; c1:=good_points[p1].c;
+          x2:=good_points[p2].x; y2:=good_points[p2].y; c2:=good_points[p2].c;
+          x3:=good_points[p3].x; y3:=good_points[p3].y; c3:=good_points[p3].c;
+          img.Line(x1,y1,x2,y2,Sault_color);
+          img.Line(x1,y1,x3,y3,Sault_color);
+          img.Line(x2,y2,x3,y3,Sault_color);
+          img.Ellipse(x1,y1,2,2,c1);
+          img.Ellipse(x2,y2,2,2,c2);
+          img.Ellipse(x3,y3,2,2,c3);
+     end;
+     setlength(good_points,0);
+     setlength(good_points_order,0);
+     setlength(triangles,0);
 end;
 
 //фильтр обращения (инверсии) цветов

@@ -26,6 +26,8 @@ uses
 
 type
 //PInt32=^Int32;
+TBrez=array[0..4096,1..2] of integer;
+
 TImg=class
   data:array of Int32; //байты изображения
   red_data_DFT,green_data_DFT,blue_data_DFT: TIntegerComplexMatrix; //БПФ-образ изображения
@@ -60,12 +62,16 @@ TImg=class
   procedure FillRect(xmin,ymin,xmax,ymax:integer; C:Int32); //заполнение прямоугольника заданным цветом
   procedure clrscr(C:Int32); //очистка содержимого полотна рисования заданным цветом
   procedure FrameRect(xmin,ymin,xmax,ymax:integer; C:Int32); //рисование прямоугольника заданным цветом
+  procedure Circle(x0,y0,r:integer; C:Int32); //рисование окружности
   procedure Ellipse(x0,y0,xr,yr:integer; C:Int32); //рисование эллипса
   procedure Line(x1,y1,x2,y2:integer; C:Int32); //рисование отрезка
   procedure FloodFill(x0,y0:integer; c_old,c_new:Int32); //заполнение замкнутой области выбранным цветом
   procedure FloodFillFuzzy(x0,y0:integer; fuzzy_level:integer; c_old,c_new:Int32); //заполнение замкнутой области выбранным цветом
   procedure turtle(x0,y0:integer; S:string); //"черепашья" графика по командам Бейсиковского Draw
   procedure TextOut(x0,y0:integer; PenColor:Int32; TextToRender:string); //вывод текстовой информации
+  procedure Triangle(x1,y1,x2,y2,x3,y3:integer; PenColor:Int32); //рисование контура треугольника
+  procedure FlatTriangle(x1,y1,x2,y2,x3,y3:integer; BrushColor:Int32); //рисование треугольника, заполненного заданным цветом
+  procedure GuroTriangle(x1,y1,x2,y2,x3,y3:integer; C1,C2,C3:Int32); //рисование треугольника, с интерполяцией цвета внутри по модели Гуро
 
   procedure AffineTransform(img_dst:TImg; x0,y0,dx,dy,a11,a12,a21,a22,a31,a32:real); //аффинное преобразование на плоскости
   procedure MatrixFilter(img_dst:TImg; k11,k12,k13,k21,k22,k23,k31,k32,k33:real); //матричная фильтрация
@@ -161,6 +167,7 @@ end;
 //копирование прямоугольного участка в img_dst
 //области копирования-вставки имеют разные размеры
 //масштабирование не производится
+//если цвет исходного пикселя "-1", то его копирование не производится
 procedure TIMG.CopyRect(img_dst:TImg; rect_src,rect_dst:TRect);
 var x,y,WW,HH:integer; C:Int32;
 begin
@@ -382,6 +389,50 @@ begin
   end;
 end;
 
+//алгоритм Брезенхема расчета координат точек окружности
+function BrezCircle(xc,yc,r:integer; var Brez:TBrez):integer;
+var xf,yf,PixelsNum,x1,y1,x2,y2,d1,d2,dx,dy,i:integer;
+begin
+  i:=1; Brez[i,1]:=xc-r; Brez[i,2]:=yc;
+  inc(i); Brez[i,1]:=xc+r; Brez[i,2]:=yc;
+  inc(i); Brez[i,1]:=xc; Brez[i,2]:=yc-r;
+  inc(i); Brez[i,1]:=xc; Brez[i,2]:=yc+r;
+  xf:=xc+r;
+  yf:=yc;
+  for PixelsNum:=0 to ((3*r) div 4) do
+  begin
+      x1:=xf-1; x2:=xf;
+      y1:=yf-1; y2:=yf-1;
+
+      d1:=(xc-x1)*(xc-x1)+(yc-y1)*(yc-y1)-r*r;
+      d2:=(xc-x2)*(xc-x2)+(yc-y2)*(yc-y2)-r*r;
+
+      if (d1<0) then d1:=-d1;
+      if (d2<0) then d2:=-d2;
+
+      if (d1<d2) then begin xf:=x1; yf:=y1; end else begin xf:=x2; yf:=y2; end;
+      dx:=xf-xc; dy:=yf-yc;
+
+      inc(i); Brez[i,1]:=xc+dx; Brez[i,2]:=yc+dy;
+      inc(i); Brez[i,1]:=xc-dx; Brez[i,2]:=yc+dy;
+      inc(i); Brez[i,1]:=xc+dx; Brez[i,2]:=yc-dy;
+      inc(i); Brez[i,1]:=xc-dx; Brez[i,2]:=yc-dy;
+      inc(i); Brez[i,1]:=xc+dy; Brez[i,2]:=yc+dx;
+      inc(i); Brez[i,1]:=xc-dy; Brez[i,2]:=yc+dx;
+      inc(i); Brez[i,1]:=xc+dy; Brez[i,2]:=yc-dx;
+      inc(i); Brez[i,1]:=xc-dy; Brez[i,2]:=yc-dx;
+  end;
+  BrezCircle:=i;
+end;
+
+procedure TIMG.circle(x0,y0,r:integer; C:Int32);
+var Brez:TBrez;
+    i,np:Integer;
+begin
+     np:=BrezCircle(x0,y0,r,Brez);
+     for i:=1 to np do SetPixel(Brez[i,1],Brez[i,2],C);
+end;
+
 //рисование эллипса на img
 procedure TIMG.Ellipse(x0,y0,xr,yr:integer; C:Int32);
 var tt,xx,yy:integer; t:real;
@@ -395,24 +446,49 @@ begin
   end;
 end;
 
+//алгоритм Брезенхема расчета координат точек отрезка
+function BrezLine(x1,y1,x2,y2:integer; var Brez:TBrez):integer;
+var dx,dy,ix,iy,x,y,i,j,PlotX,PlotY,Hinc:integer;
+    Plot:Boolean;
+begin
+     dx:=x2-x1; dy:=y2-y1;
+     ix:=abs(dx); iy:=abs(dy);
+     if ix>iy then Hinc:=ix else Hinc:=iy;
+     PlotX:=x1; Ploty:=y1; x:=0; y:=0;
+     i:=1; Brez[i,1]:=PlotX; Brez[i,2]:=PlotY;
+     for j:=0 to Hinc do
+         begin
+              x:=x+ix; y:=y+iy; Plot:=false;
+              if x>Hinc then
+                 begin
+                      Plot:=true; x:=x-Hinc;
+                      if dx>0 then inc(PlotX);
+                      if dx<0 then dec(PlotX);
+                 end;
+              if y>Hinc then
+                 begin
+                      Plot:=true; y:=y-Hinc;
+                      if dy>0 then inc(PlotY);
+                      if dy<0 then dec(PlotY);
+                 end;
+              if Plot then
+                 begin
+                      inc(i); Brez[i,1]:=PlotX; Brez[i,2]:=PlotY;
+                 end;
+         end;
+     BrezLine:=i;
+end;
+
 //рисование отрезка на img
 procedure TIMG.Line(x1,y1,x2,y2:integer; C:Int32);
-var xx,xnum:integer; x,y,k,bb,dx:real;
+var i,np: integer; Brez:TBrez;
 begin
   if y1=y2 then HorLine(x1,x2,y1,C)
   else if x1=x2 then VerLine(x1,y1,y2,C)
   else
   begin
-    k:=(y2-y1)/(x2-x1);
-    bb:=y1-k*x1;
-    dx:=(x2-x1)/1000;
-    xnum:=trunc(abs(k));
-    for xx:=0 to 1000 do
-    begin
-       x:=x1+xx*dx;
-       y:=k*x+bb;
-       SetPixel(trunc(x),trunc(y),C);
-    end;
+    np:=BrezLine(x1,y1,x2,y2,Brez);
+    for i:=1 to np do SetPixel(Brez[i,1],Brez[i,2],C);
   end;
 end;
 
@@ -473,6 +549,119 @@ begin
       for x:=xmin to xmax do FloodFillFuzzy(x,y0+1,fuzzy_level,c_old,c_new);
     end;
   end;
+end;
+
+//рисование контура треугольника
+procedure TIMG.Triangle(x1,y1,x2,y2,x3,y3:integer; PenColor:Int32);
+begin
+     Line(x1,y1,x2,y2,PenColor);
+     Line(x2,y2,x3,y3,PenColor);
+     Line(x3,y3,x1,y1,PenColor);
+end;
+
+//интерполяция цвета внутри горизонтального отрезка
+Procedure Gradient(x1,c1,x2,c2:integer; var GrLine: TBrez);
+var np1,i,j:integer; line1:TBrez;
+begin
+     np1:=BrezLine(x1,c1,x2,c2,line1);
+     GrLine[1]:=line1[1];
+     j:=1;
+     for i:=2 to np1 do
+         if line1[i,1]<>line1[i-1,1] then
+            begin
+                 inc(j); GrLine[j]:=line1[i];
+            end;
+end;
+
+//рисование треугольника, заполненного заданным цветом
+procedure TIMG.FlatTriangle(x1,y1,x2,y2,x3,y3:integer; BrushColor:Int32);
+var line1,line2,line3: TBrez;
+    y:integer;
+begin
+  if y1>y2 then begin swap(x1,x2); swap(y1,y2); end;
+  if y1>y3 then begin swap(x1,x3); swap(y1,y3); end;
+  if y2>y3 then begin swap(x2,x3); swap(y2,y3); end;
+
+  Gradient(y1,x1,y2,x2,line1);
+  Gradient(y2,x2,y3,x3,line2);
+  Gradient(y1,x1,y3,x3,line3);
+
+  for y:=y1 to y2 do Line(line1[y-y1+1,2],y,line3[y-y1+1,2],y,BrushColor);
+  for y:=y2 to y3 do Line(line2[y-y2+1,2],y,line3[y-y1+1,2],y,BrushColor);
+end;
+
+//рисование треугольника, с интерполяцией цвета внутри по модели Гуро
+procedure TIMG.GuroTriangle(x1,y1,x2,y2,x3,y3:integer; C1,C2,C3:Int32);
+var line1,line2,line3: TBrez;
+    GradR1,GradG1,GradB1,
+    GradR2,GradG2,GradB2,
+    GradR3,GradG3,GradB3,
+    GrLineR,GrLineG,GrLineB: TBrez;
+    x,y,h,h1:integer;
+    r1,r2,r3,g1,g2,g3,b1,b2,b3, c1r,c1g,c1b,c2r,c2g,c2b:integer;
+begin
+  if y1>y2 then begin swap(x1,x2); swap(y1,y2); swap(c1,c2); end;
+  if y1>y3 then begin swap(x1,x3); swap(y1,y3); swap(c1,c3); end;
+  if y2>y3 then begin swap(x2,x3); swap(y2,y3); swap(c2,c3); end;
+
+  Gradient(y1,x1,y2,x2,line1);
+  Gradient(y2,x2,y3,x3,line2);
+  Gradient(y1,x1,y3,x3,line3);
+
+  r1:=red(c1); g1:=green(c1); b1:=blue(c1);
+  r2:=red(c2); g2:=green(c2); b2:=blue(c2);
+  r3:=red(c3); g3:=green(c3); b3:=blue(c3);
+
+  Gradient(y1,r1,y2,r2,GradR1);
+  Gradient(y2,r2,y3,r3,GradR2);
+  Gradient(y1,r1,y3,r3,GradR3);
+
+  Gradient(y1,g1,y2,g2,GradG1);
+  Gradient(y2,g2,y3,g3,GradG2);
+  Gradient(y1,g1,y3,g3,GradG3);
+
+  Gradient(y1,b1,y2,b2,GradB1);
+  Gradient(y2,b2,y3,b3,GradB2);
+  Gradient(y1,b1,y3,b3,GradB3);
+
+  h:=0;
+  for y:=y1 to y2 do
+      begin
+           inc(h);
+           x1:=line3[h,2]; x2:=line1[h,2];
+
+           c1r:=GradR3[h,2]; c2r:=GradR1[h,2];
+           c1g:=GradG3[h,2]; c2g:=GradG1[h,2];
+           c1b:=GradB3[h,2]; c2b:=GradB1[h,2];
+           if x1>x2 then begin
+             swap(x1,x2);
+             swap(c1r,c2r); swap(c1g,c2g); swap(c1b,c2b);
+           end;
+           Gradient(x1,c1r,x2,c2r,GrLineR);
+           Gradient(x1,c1g,x2,c2g,GrLineG);
+           Gradient(x1,c1b,x2,c2b,GrLineB);
+           for x:=x1 to x2 do
+             SetPixel(x,y,RGBtoColor(GrLineR[x-x1+1,2],GrLineG[x-x1+1,2],GrLineB[x-x1+1,2]));
+      end;
+  h1:=0;
+  for y:=y2 to y3-1 do
+      begin
+           inc(h); inc(h1);
+           x1:=line3[h,2]; x2:=line2[h1,2];
+           c1r:=GradR3[h,2]; c2r:=GradR2[h1,2];
+           c1g:=GradG3[h,2]; c2g:=GradG2[h1,2];
+           c1b:=GradB3[h,2]; c2b:=GradB2[h1,2];
+           if x1>x2 then begin
+             swap(x1,x2);
+             swap(c1r,c2r); swap(c1g,c2g); swap(c1b,c2b);
+           end;
+           Gradient(x1,c1r,x2,c2r,GrLineR);
+           Gradient(x1,c1g,x2,c2g,GrLineG);
+           Gradient(x1,c1b,x2,c2b,GrLineB);
+           for x:=x1 to x2 do
+             SetPixel(x,y,RGBtoColor(GrLineR[x-x1+1,2],GrLineG[x-x1+1,2],GrLineB[x-x1+1,2]));
+      end;
+  SetPixel(x3,y3,c3);
 end;
 
 //"черепашья" графика по командам Бейсиковского Draw

@@ -31,6 +31,9 @@ function min(a,b:real):real; //выбор минимального из двух
 function max(a,b:integer):integer; //выбор максимального из двух значений
 function max(a,b:real):real;
 
+procedure quick_sort(var A:array of integer; L,R:integer); //быстрая сортировка
+procedure array_sort(var A:array of integer; N:integer); //сортировка массива
+
 //проверка и в случае необходимости корректировка параметров
 //рабочего прямоугольника для, например, битмапа rect(0,0,width-1,height-1)
 procedure CorrectRectParams(width,height:integer; var left,top,right,bottom:integer);
@@ -60,6 +63,28 @@ begin if a>b then max:=a else max:=b; end;
 
 function max(a,b:real):real;
 begin if a>b then max:=a else max:=b; end;
+
+//быстрая сортировка подмассива
+procedure quick_sort(var A:array of integer; L,R:integer);
+var i,j,x:integer;
+begin
+  i:=L; j:=R; x:=A[(i+j)div 2];
+  while i<j do
+  begin
+    while A[j]>x do j:=j-1;
+    while A[i]<x do i:=i+1;
+    if i<=j then begin swap(A[i],A[j]); j:=j-1; i:=i+1; end;
+  end;
+  if L<j then quick_sort(A,L,j);
+  if R>i then quick_sort(A,i,R);
+end;
+
+//сортировка массива
+procedure array_sort(var A:array of integer; N:integer);
+begin
+  if N>length(A) then N:=length(A);
+  quick_sort(A,0,N-1);
+end;
 
 //проверка и в случае необходимости корректировка параметров
 //рабочего прямоугольника для, например, битмапа rect(0,0,width-1,height-1)
