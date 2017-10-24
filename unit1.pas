@@ -69,6 +69,12 @@ type
     LabelColorRed: TLabel;
     LabelColorSaturation: TLabel;
     LabelColorvalue: TLabel;
+    MenuItemAdaptiveMedianFilterAgain1000: TMenuItem;
+    MenuItemAdaptiveMedianFilterAgain100: TMenuItem;
+    MenuItemAdaptiveMedianFilterAgain10: TMenuItem;
+    MenuItemAdaptiveMedianFilterAgain5: TMenuItem;
+    MenuItemAdaptiveMedianFilterAgain1: TMenuItem;
+    MenuItemPSNR: TMenuItem;
     MenuItemAdaptiveMedianFilter: TMenuItem;
     MenuItemMedianFilter: TMenuItem;
     MenuItemCircle: TMenuItem;
@@ -286,6 +292,7 @@ type
     procedure MenuItemNoiseClick(Sender: TObject);
     procedure MenuItemPepperClick(Sender: TObject);
     procedure MenuItemPrintClick(Sender: TObject);
+    procedure MenuItemPSNRClick(Sender: TObject);
     procedure MenuItemRecognitionClick(Sender: TObject);
     procedure MenuItemRedChannelCleanClick(Sender: TObject);
     procedure MenuItemSaultClick(Sender: TObject);
@@ -926,11 +933,12 @@ end;
 
 //Адаптивный медианный фильтр от соли и перца
 procedure TForm1.MenuItemAdaptiveMedianFilterClick(Sender: TObject);
-var FilterRadius:integer;
+var i,n,FilterRadius:integer;
 begin
   SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   FilterRadius:=StrToInt(InputBox('Радиус фильтрации','Введите радиус фильтрации','5'));
-  FilterAdaptiveMedian(SelIMG,FilterRadius);
+  N:=(Sender as TMenuItem).tag;
+  for i:=1 to N do FilterAdaptiveMedian(SelIMG,FilterRadius);
   SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   ComposeImageView;
 end;
@@ -1600,6 +1608,21 @@ begin
   end;
 end;
 
+//Определит пиковое соотношение сигнал/шум (слой 1 -оригинал, слой 0 - после обработки)
+procedure TForm1.MenuItemPSNRClick(Sender: TObject);
+var PSNR_r,PSNR_g,PSNR_b:real; S,s_r,s_g,s_b:string;
+begin
+     FilterPSNR(Layers[1],Layers[0],PSNR_r,PSNR_g,PSNR_b);
+     s_r:='infinity'; s_g:='infinity'; s_b:='infinity';
+     if PSNR_r<>-1 then s_r:=FloatToStr(trunc(PSNR_r*10)/10);
+     if PSNR_g<>-1 then s_g:=FloatToStr(trunc(PSNR_g*10)/10);
+     if PSNR_b<>-1 then s_b:=FloatToStr(trunc(PSNR_b*10)/10);
+     S:='R канал: '+s_r+' Дб'+chr(13)+
+        'G канал: '+s_g+' Дб'+chr(13)+
+        'B канал: '+s_b+' Дб';
+     MessageBox(0,Pchar(S),'Пиковое соотношение сигнал/шум',0);
+end;
+
 //распознавание выделенной области изображения
 procedure TForm1.MenuItemRecognitionClick(Sender: TObject);
 var NearestImage:integer;
@@ -1897,7 +1920,7 @@ end;
 //перерисовка коллекции изображений
 procedure TForm1.PBoxCollectionPaint(Sender: TObject);
 begin
-  PBoxCollection.width:=Form1.Width;
+//  PBoxCollection.width:=Form1.Width;  //Возникает сильная утечка памяти ????
   DrawCollectionBox;
 end;
 

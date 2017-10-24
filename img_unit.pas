@@ -26,6 +26,7 @@ uses
 
 type
 //PInt32=^Int32;
+vector3=record x,y,z:real; end;
 TBrez=array[0..4096,1..2] of integer;
 
 TImg=class

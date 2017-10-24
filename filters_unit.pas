@@ -63,6 +63,8 @@ procedure FilterDePepper(img:TIMG; show_triangles:boolean);
 procedure FilterNegative(img:TIMG);
 //фильтр коррекции цветов (умножается на соответствующий коэффициент каждая компонета)
 procedure FilterColorCorrection(img:TIMG; k_r,k_g,k_b:real);
+//процедура определения пикового соотношения сигнал/шум
+procedure FilterPSNR(img_orig,img_new:TIMG; var PSNR_r,PSNR_g,PSNR_b:real);
 
 implementation
 
@@ -330,25 +332,30 @@ begin
      for y:=radius to img.height-radius-1 do
      for x:=radius to img.width-radius-1 do
      begin
-       img.CopyRect(filter_img,RECT(x,y,x+radius,y+radius),RECT(0,0,radius-1,radius-1));
-       k:=0;
-       for i:=0 to radius-1 do
-       for j:=0 to radius-1 do
+       C:=img.GetPixel(x,y);
+       if (C<>pepper_color)and(C<>sault_color) then tmp_img.SetPixel(x,y,C)
+          else
        begin
+         img.CopyRect(filter_img,RECT(x,y,x+radius,y+radius),RECT(0,0,radius-1,radius-1));
+         k:=0; red_data[0]:=0; green_data[0]:=0; blue_data[0]:=0;
+         for i:=0 to radius-1 do
+         for j:=0 to radius-1 do
+         begin
            C:=filter_img.GetPixel(i,j);
            if (C<>pepper_color)and(C<>sault_color) then
            begin
-                red_data[k]:=red(C);
-                green_data[k]:=green(C);
-                blue_data[k]:=blue(C);
-                k:=k+1;
+             red_data[k]:=red(C);
+             green_data[k]:=green(C);
+             blue_data[k]:=blue(C);
+             k:=k+1;
            end;
-       end;
+         end;
 
-       quick_sort(red_data,0,k-1); r:=red_data[k div 2];
-       quick_sort(green_data,0,k-1); g:=green_data[k div 2];
-       quick_sort(blue_data,0,k-1); b:=blue_data[k div 2];
-       tmp_img.SetPixel(x,y,RGBToColor(r,g,b));
+         quick_sort(red_data,0,k-1); r:=red_data[k div 2];
+         quick_sort(green_data,0,k-1); g:=green_data[k div 2];
+         quick_sort(blue_data,0,k-1); b:=blue_data[k div 2];
+         tmp_img.SetPixel(x,y,RGBToColor(r,g,b));
+       end;
      end;
      tmp_IMG.CloneToIMG(img);
 
@@ -436,19 +443,20 @@ begin
      ac:=sqrt(distance2(x1,y1,x3,y3));
      bc:=sqrt(distance2(x2,y2,x3,y3));
      epsilon:=0.001;
-     s_abc:=S_triangle(ab,ac,bc);
+     S_abc:=S_triangle(ab,ac,bc);
      S_axb:=S_triangle(ab,xa,xb);
      S_axc:=S_triangle(ac,xa,xc);
      S_bxc:=S_triangle(bc,xb,xc);
      tmp:=-1;
      if abs(S_axb+S_axc+S_bxc-S_abc)<epsilon then tmp:=0;
-     if S_axb<epsilon then tmp:=1;
-     if S_axc<epsilon then tmp:=-1;//2;
-     if S_bxc<epsilon then tmp:=-1;//3;
-     if (S_axb<epsilon)and(S_axc<epsilon) then tmp:=-1;//4;
-     if (S_axb<epsilon)and(S_bxc<epsilon) then tmp:=-1;//5;
-     if (S_axc<epsilon)and(S_bxc<epsilon) then tmp:=-1;//6;
-     if (S_axb<epsilon)and(S_axc<epsilon)and(S_bxc<epsilon) then tmp:=-1;//7;
+     if (S_axb<epsilon)or(S_axc<epsilon)or(S_bxc<epsilon)or(S_abc<epsilon) then tmp:=-1;
+//     if S_axb<epsilon then tmp:=1;
+//     if S_axc<epsilon then tmp:=2;
+//     if S_bxc<epsilon then tmp:=3;
+//     if (S_axb<epsilon)and(S_axc<epsilon) then tmp:=4;
+//     if (S_axb<epsilon)and(S_bxc<epsilon) then tmp:=5;
+//     if (S_axc<epsilon)and(S_bxc<epsilon) then tmp:=6;
+//     if (S_axb<epsilon)and(S_axc<epsilon)and(S_bxc<epsilon) then tmp:=7;
      inside_triangle:=tmp;
 end;
 
@@ -605,6 +613,7 @@ begin
           img.Ellipse(x2,y2,2,2,c2);
           img.Ellipse(x3,y3,2,2,c3);
      end;
+
      setlength(good_points,0);
      setlength(good_points_order,0);
      setlength(triangles,0);
@@ -625,6 +634,33 @@ begin
       img.SetPixel(x,y,C);
     end;
   end;
+end;
+
+//процедура определения пикового соотношения сигнал/шум
+procedure FilterPSNR(img_orig,img_new:TIMG; var PSNR_r,PSNR_g,PSNR_b:real);
+var x,y:integer;
+    peakval,MSE_r,MSE_g,MSE_b:real;
+    r_orig,r_new,g_orig,g_new,b_orig,b_new:Integer;
+    C_orig,C_new:Int32;
+begin
+     peakval:=255;
+     MSE_r:=0; MSE_g:=0; MSE_b:=0;
+     for y:=0 to img_orig.height-1 do
+     for x:=0 to img_orig.width-1 do
+     begin
+       C_orig:=img_orig.GetPixel(x,y);
+       C_new:=img_new.GetPixel(x,y);
+       MSE_r:=MSE_r+sqr(red(C_orig)-red(C_new));
+       MSE_g:=MSE_g+sqr(green(C_orig)-green(C_new));
+       MSE_b:=MSE_b+sqr(blue(C_orig)-blue(C_new));
+     end;
+     MSE_r:=MSE_r/(img_orig.width*img_orig.height);
+     MSE_g:=MSE_g/(img_orig.width*img_orig.height);
+     MSE_b:=MSE_b/(img_orig.width*img_orig.height);
+
+     if MSE_r<>0 then PSNR_r:=10*lg(sqr(peakval)/MSE_r) else PSNR_r:=-1;
+     if MSE_g<>0 then PSNR_g:=10*lg(sqr(peakval)/MSE_g) else PSNR_g:=-1;
+     if MSE_b<>0 then PSNR_b:=10*lg(sqr(peakval)/MSE_b) else PSNR_b:=-1;
 end;
 
 end.

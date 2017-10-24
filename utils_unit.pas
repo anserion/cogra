@@ -15,12 +15,17 @@
 //=====================================================================
 //несколько полезных функций, забытых разработчиками FreePascal
 //swap(a,b) - обмен переменных, min(a,b), max(a,b) - максимум и минимум
+//quick_sort(A,left,right) - быстрая сортировка подмассива
+//array_sort(A) - сортировка массива (в основе быстрая сортировка)
+//lg(x) - логарифм по основанию 10
 //=====================================================================
 unit utils_unit;
 
 {$mode objfpc}{$H+}
 
 interface
+
+function lg(x:real):real; //логарифм по основанию 10
 
 procedure swap(var a,b:integer); //обмен содержимого двух ячеек памяти
 procedure swap(var a,b:real); //обмен содержимого двух ячеек памяти
@@ -32,7 +37,9 @@ function max(a,b:integer):integer; //выбор максимального из 
 function max(a,b:real):real;
 
 procedure quick_sort(var A:array of integer; L,R:integer); //быстрая сортировка
-procedure array_sort(var A:array of integer; N:integer); //сортировка массива
+procedure quick_sort(var A:array of real; L,R:integer); //быстрая сортировка
+procedure array_sort(var A:array of integer); //сортировка массива
+procedure array_sort(var A:array of real); //сортировка массива
 
 //проверка и в случае необходимости корректировка параметров
 //рабочего прямоугольника для, например, битмапа rect(0,0,width-1,height-1)
@@ -42,6 +49,12 @@ procedure CorrectRectParams(width,height:integer; var left,top,right,bottom:inte
 function PlotInRect(x,y:integer; xmin,ymin,xmax,ymax:integer):boolean;
 
 implementation
+
+//логарифм по основанию 10
+function lg(x:real):real;
+begin
+  lg:=ln(x)/ln(10);
+end;
 
 //обмен содержимого двух ячеек памяти
 procedure swap(var a,b:integer);
@@ -79,10 +92,32 @@ begin
   if R>i then quick_sort(A,i,R);
 end;
 
-//сортировка массива
-procedure array_sort(var A:array of integer; N:integer);
+procedure quick_sort(var A:array of real; L,R:integer);
+var i,j:integer; x:real;
 begin
-  if N>length(A) then N:=length(A);
+  i:=L; j:=R; x:=A[(i+j)div 2];
+  while i<j do
+  begin
+    while A[j]>x do j:=j-1;
+    while A[i]<x do i:=i+1;
+    if i<=j then begin swap(A[i],A[j]); j:=j-1; i:=i+1; end;
+  end;
+  if L<j then quick_sort(A,L,j);
+  if R>i then quick_sort(A,i,R);
+end;
+
+//сортировка массива
+procedure array_sort(var A:array of integer);
+var n:integer;
+begin
+  N:=length(A);
+  quick_sort(A,0,N-1);
+end;
+
+procedure array_sort(var A:array of real);
+var n:integer;
+begin
+  N:=length(A);
   quick_sort(A,0,N-1);
 end;
 
