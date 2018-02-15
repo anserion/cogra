@@ -312,12 +312,17 @@ end;
 //Адаптивный медианный фильтр от соли и перца
 procedure FilterAdaptiveMedian(img:TIMG; Radius:integer);
 var x,y,i,j,k,N,r,g,b:integer;
-    tmp_img,filter_img:TIMG;
+    tmp_img,tmp_src,filter_img:TIMG;
     red_data,green_data,blue_data:array of integer;
     pepper_color,sault_color,C:Int32;
 begin
      N:=Radius*Radius;
      pepper_color:=0; sault_color:=65536*255+256*255+255;
+     tmp_src:=TIMG.create;
+     tmp_src.SetSize(IMG.width+radius+radius,IMG.height+radius+radius);
+     tmp_src.FillRect(0,0,tmp_src.width-1,tmp_src.height-1,0);
+     img.CopyRect(tmp_src,RECT(0,0,img.width-1,img.height-1),RECT(radius,radius,img.width+radius,img.height+radius));
+
      tmp_img:=TIMG.create;
      tmp_IMG.SetSize(IMG.width,IMG.height);
      tmp_img.FillRect(0,0,tmp_img.width-1,tmp_img.height-1,0);
@@ -329,14 +334,14 @@ begin
      setlength(green_data,N);
      setlength(blue_data,N);
 
-     for y:=radius to img.height-radius-1 do
-     for x:=radius to img.width-radius-1 do
+     for y:=radius to tmp_src.height-radius-1 do
+     for x:=radius to tmp_src.width-radius-1 do
      begin
-       C:=img.GetPixel(x,y);
-       if (C<>pepper_color)and(C<>sault_color) then tmp_img.SetPixel(x,y,C)
+       C:=tmp_src.GetPixel(x,y);
+       if (C<>pepper_color)and(C<>sault_color) then tmp_img.SetPixel(x-radius,y-radius,C)
           else
        begin
-         img.CopyRect(filter_img,RECT(x,y,x+radius,y+radius),RECT(0,0,radius-1,radius-1));
+         tmp_src.CopyRect(filter_img,RECT(x,y,x+radius,y+radius),RECT(0,0,radius-1,radius-1));
          k:=0; red_data[0]:=0; green_data[0]:=0; blue_data[0]:=0;
          for i:=0 to radius-1 do
          for j:=0 to radius-1 do
@@ -354,7 +359,7 @@ begin
          quick_sort(red_data,0,k-1); r:=red_data[k div 2];
          quick_sort(green_data,0,k-1); g:=green_data[k div 2];
          quick_sort(blue_data,0,k-1); b:=blue_data[k div 2];
-         tmp_img.SetPixel(x,y,RGBToColor(r,g,b));
+         tmp_img.SetPixel(x-radius,y-radius,RGBToColor(r,g,b));
        end;
      end;
      tmp_IMG.CloneToIMG(img);
@@ -362,7 +367,7 @@ begin
      setlength(red_data,0);
      setlength(green_data,0);
      setlength(blue_data,0);
-     tmp_img.done; filter_img.done;
+     tmp_img.done; filter_img.done; tmp_src.done;
 end;
 
 //фильтр зашумления
@@ -421,7 +426,9 @@ function S_triangle(a,b,c:real):real;
 var p:real;
 begin
      p:=(a+b+c)/2;
-     S_triangle:=sqrt(p*(p-a)*(p-b)*(p-c));
+     if (p>0)and(p-a>0)and(p-b>0)and(p-c>0)
+        then S_triangle:=sqrt(p*(p-a)*(p-b)*(p-c))
+        else S_triangle:=0;
 end;
 //определение принадлежности точки треугольнику
 // -1 - не принадлежит треугольнику

@@ -26,12 +26,12 @@ uses
 
 type
 //PInt32=^Int32;
-vector3=record x,y,z:real; end;
 TBrez=array[0..4096,1..2] of integer;
 
 TImg=class
   data:array of Int32; //байты изображения
   red_data_DFT,green_data_DFT,blue_data_DFT: TIntegerComplexMatrix; //БПФ-образ изображения
+  FixCoords: array of TPoint; //массив вспомогательных опорных точек
   name:string; //текстовое имя изображения
   width,height:integer; //ширина и высота изображения
   dft_width,dft_height:integer; //ширина и высота фурье-образа изображения
@@ -96,12 +96,14 @@ begin
   dft_width:=0; dft_height:=0;
   data:=nil;
   red_data_DFT:=nil; green_data_DFT:=nil; blue_data_DFT:=nil;
+  FixCoords:=nil;
 end;
 
 destructor TImg.done;
 begin
   Finalize(data);
   Finalize(red_data_DFT); Finalize(green_data_DFT); Finalize(blue_data_DFT);
+  Finalize(FixCoords);
 end;
 
 procedure TImg.SetSize(new_width,new_height:integer);

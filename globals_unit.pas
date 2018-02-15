@@ -22,7 +22,7 @@ unit globals_unit;
 interface
 
 uses
-  Classes, SysUtils, Graphics, utils_unit, img_unit, arith_complex;
+  Classes, SysUtils, Graphics, utils_unit, img_unit, img3d_unit, arith_complex;
 
 type
 TRealVector=array of real;
@@ -41,6 +41,7 @@ Layers: array of TImg; //слои (холсты) рисования
 LayersTransparency:array of real; //прозрачность слоев(0-непрозрачно, 1- полностью прозрачно)
 LayerCode: integer; //номер активного слоя рисования
 MouseCoords: array of TPoint; //стек координат точек нажатия мыши
+MouseButton: integer; //код нажатой на мыше кнопки
 MatrixFilter_k11,MatrixFilter_k12,MatrixFilter_k13,      //коэффициенты матричной фильтрации
 MatrixFilter_k21,MatrixFilter_k22,MatrixFilter_k23,      //"глобальные" чтобы не вводить
 MatrixFilter_k31,MatrixFilter_k32,MatrixFilter_k33:real; //много чисел при повторных пусках фильтра
@@ -48,6 +49,9 @@ affine_a11,affine_a12,affine_a21,affine_a22,affine_a31,affine_a32:real; //коэ
 area_min_pixels:integer; //min число пикселей в образе
 area_contrast_level:integer; //уровень контрастности границ при поиске образов на изображении
 global_DFT_width,global_DFT_height:integer; //размеры матрицы преобразования Фурье
+mode_3d:boolean; //режим трехмерного моделирования
+thetha_3d,phi_3d,dist_3d:real; //углы поворота и удаление от наблюдателя
+img3d:Timg3d; //глобальный 3d-объект
 
 procedure AddNewImageToCollection(img:TIMG); //добавление нового изображения в конец коллекции (создается новая копия изображения)
 procedure RemoveImageFromCollection(img_num:integer); //удаление изображения из коллекции

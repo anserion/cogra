@@ -1,4 +1,4 @@
-//Copyright 2015 Andrey S. Ionisyan (anserion@gmail.com)
+//Copyright 2015-2018 Andrey S. Ionisyan (anserion@gmail.com)
 //
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -23,29 +23,34 @@ uses
   Graphics, Dialogs, Menus, ExtCtrls, StdCtrls, FileUtil,
   ExtDlgs, FPCanvas, LCLintf, LCLtype, Grids,
   utils_unit, globals_unit, img_unit, colors_unit, filters_unit,
-  functions_unit, recognition_unit, arith_complex;
+  functions_unit, recognition_unit, img3d_unit, arith_complex, Types;
 
 type
   { TForm1 }
 
   TForm1 = class(TForm)
     BrushColorDialog: TColorDialog;
+    ButtonFixCoordsNum: TButton;
     Button_DFT_params: TButton;
     ButtonAreasParams: TButton;
     ButtonAffineKoeff: TButton;
     ButtonFilterKoeff: TButton;
     CheckBoxShowImages: TCheckBox;
+    EditFixCoordsNum: TEdit;
     Edit_DFT_width: TEdit;
     EditAreasMinPixels: TEdit;
     EditAreasContrast: TEdit;
     EditFilterZnam: TEdit;
     Edit_DFT_height: TEdit;
     GridAffineKoeff: TStringGrid;
+    GridCoords: TStringGrid;
     GridFilterKoeff: TStringGrid;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    LabelCoords: TLabel;
+    Label_3D: TLabel;
     LabelCollection: TLabel;
     LabelAreasMinPixels: TLabel;
     LabelAreasContrast: TLabel;
@@ -69,6 +74,17 @@ type
     LabelColorRed: TLabel;
     LabelColorSaturation: TLabel;
     LabelColorvalue: TLabel;
+    MenuItemLoadFixCoords: TMenuItem;
+    MenuItemSaveFixCoords: TMenuItem;
+    MenuItemPolygonOpen: TMenuItem;
+    MenuItemGenerateCube3D: TMenuItem;
+    MenuItemGenerateTetraedr3D: TMenuItem;
+    MenuItemCenter3D: TMenuItem;
+    MenuItemService: TMenuItem;
+    MenuItem_3D_on_off: TMenuItem;
+    MenuItemLoadSTL: TMenuItem;
+    MenuItemPrimitivs3D: TMenuItem;
+    MenuItem_3D: TMenuItem;
     MenuItemAdaptiveMedianFilterAgain1000: TMenuItem;
     MenuItemAdaptiveMedianFilterAgain100: TMenuItem;
     MenuItemAdaptiveMedianFilterAgain10: TMenuItem;
@@ -83,6 +99,7 @@ type
     MenuItemSault: TMenuItem;
     MenuItemPepper: TMenuItem;
     MenuItemSaultPepper: TMenuItem;
+    OpenDialog1: TOpenDialog;
     TextConsole: TMemo;
     MenuItemFractalLandscape: TMenuItem;
     MenuItemFractalMandelbrot: TMenuItem;
@@ -232,13 +249,19 @@ type
     procedure ButtonAffineKoeffClick(Sender: TObject);
     procedure ButtonAreasParamsClick(Sender: TObject);
     procedure ButtonFilterKoeffClick(Sender: TObject);
+    procedure ButtonFixCoordsNumClick(Sender: TObject);
     procedure Button_DFT_paramsClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
+    procedure GridCoordsEditingDone(Sender: TObject);
     procedure ImageViewMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure ImageViewMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
     procedure ImageViewMouseUp(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
+    procedure ImageViewMouseWheelDown(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
+    procedure ImageViewMouseWheelUp(Sender: TObject; Shift: TShiftState;
+      MousePos: TPoint; var Handled: Boolean);
     procedure ImageViewPaint(Sender: TObject);
     procedure LabelColorPenClick(Sender: TObject);
     procedure LabelLayerCodeClick(Sender: TObject);
@@ -246,10 +269,12 @@ type
     procedure LabelPenSizeClick(Sender: TObject);
     procedure MenuItemAdaptiveMedianFilterClick(Sender: TObject);
     procedure MenuItemBlueChannelCleanClick(Sender: TObject);
-    procedure MenuItemCircleClick(Sender: TObject);
+    procedure MenuItemCenter3DClick(Sender: TObject);
     procedure MenuItemDePepperClick(Sender: TObject);
     procedure MenuItemDePepperShowClick(Sender: TObject);
     procedure MenuItemFractalMandelbrotClick(Sender: TObject);
+    procedure MenuItemGenerateCube3DClick(Sender: TObject);
+    procedure MenuItemGenerateTetraedr3DClick(Sender: TObject);
     procedure MenuItemGreenChannelCleanClick(Sender: TObject);
     procedure MenuItemAffinneClick(Sender: TObject);
     procedure MenuItemBlurClick(Sender: TObject);
@@ -266,6 +291,8 @@ type
     procedure MenuItemIMGtoGreenReFourieClick(Sender: TObject);
     procedure MenuItemIMGtoRedImFourieClick(Sender: TObject);
     procedure MenuItemIMGtoRedReFourieClick(Sender: TObject);
+    procedure MenuItemLoadFixCoordsClick(Sender: TObject);
+    procedure MenuItemLoadSTLClick(Sender: TObject);
     procedure MenuItemLowPassFourieClick(Sender: TObject);
     procedure MenuItemContourClick(Sender: TObject);
     procedure MenuItemContrastDecreaseClick(Sender: TObject);
@@ -291,6 +318,7 @@ type
     procedure MenuItemNegativeClick(Sender: TObject);
     procedure MenuItemNoiseClick(Sender: TObject);
     procedure MenuItemPepperClick(Sender: TObject);
+    procedure MenuItemPolygonOpenClick(Sender: TObject);
     procedure MenuItemPrintClick(Sender: TObject);
     procedure MenuItemPSNRClick(Sender: TObject);
     procedure MenuItemRecognitionClick(Sender: TObject);
@@ -298,6 +326,7 @@ type
     procedure MenuItemSaultClick(Sender: TObject);
     procedure MenuItemSaultPepperClick(Sender: TObject);
     procedure MenuItemSaveCollectionClick(Sender: TObject);
+    procedure MenuItemSaveFixCoordsClick(Sender: TObject);
     procedure MenuItemSearchRegionsClick(Sender: TObject);
     procedure MenuItemSelectAllClick(Sender: TObject);
     procedure MenuItemSharpenClick(Sender: TObject);
@@ -312,6 +341,8 @@ type
     procedure MenuItemFileSaveClick(Sender: TObject);
     procedure MenuItemSetPixelClick(Sender: TObject);
     procedure MenuItemTransp0Click(Sender: TObject);
+    procedure MenuItemVectorizeClick(Sender: TObject);
+    procedure MenuItem_3D_on_offClick(Sender: TObject);
     procedure PBoxCollectionMouseMove(Sender: TObject; Shift: TShiftState; X,
       Y: Integer);
     procedure PBoxCollectionMouseUp(Sender: TObject; Button: TMouseButton;
@@ -336,6 +367,7 @@ type
     RotateToolInWorkFlag: boolean; //признак работы с инструментом вращения выделенной области
     ScaleToolInWorkFlag: boolean; //признак работы с инструментом масштабирования выделенной области
     InstrumentInWorkFlag: boolean; //признак активности выбранного инструмента
+    Move3dInWorkFlag: boolean; //признак включения режима 3D-манипуляций
     MagnifyBitmap: TBitmap; //полотно рисования лупы для связи с PaintBox
     MagnifyIMG: TIMG; //полотно быстрого рисования лупы
     MagnifyScale: real; //коэффициент увеличения лупы
@@ -446,7 +478,7 @@ begin
   DontAddComposeToCollectionFlag:= DontAddComposeToCollectionFlag or
         InstrumentInWorkFlag or SelectionToolInWorkFlag or
         RotateToolInWorkFlag or ScaleToolInWorkFlag or
-        TranslateToolInWorkFlag or ImageViewShiftFlag;
+        TranslateToolInWorkFlag or ImageViewShiftFlag or Move3DInWorkFlag;
   if not(DontAddComposeToCollectionFlag) then
   begin
     AddNewImageToCollection(Layers[LayerCode]);
@@ -514,11 +546,16 @@ begin
    GridFilterKoeff.Cells[2,2]:=FloatToStr(MatrixFilter_k33*k);
 
    LabelCollection.Caption:='Коллекция: '+IntToStr(length(Collection))+' образов';
+
+   if mode_3d then Label_3D.Caption:='Режим 3D: включен'+' ('+
+                                     IntToStr(img3d.n_coords)+' вертексов, '+
+                                     IntToStr(img3d.n_trios)+' треугольников)';
+   if not(mode_3d) then Label_3D.Caption:='Режим 3D: выключен';
 end;
 
 //иницализация программы
 procedure TForm1.FormCreate(Sender: TObject);
-var i:integer;
+var i,j:integer;
 begin
   //цвет рисования
   PenColor:=clGreen;
@@ -533,6 +570,8 @@ begin
   LayerCode:=0;
   //создаем хранилище мышиных координат
   SetLength(MouseCoords,10);
+  //никаких кнопок на мыше не нажато
+  MouseButton:=-1;
   //инициализация коллекции образов
   SetLength(Collection,0);
   //настройка подсистемы распознавания образов
@@ -564,8 +603,42 @@ begin
   RecalcBuffers(512,512);
   Button_DFT_paramsClick(self);
   //DontAddComposeToCollectionFlag:=true;
+  //выключаем режим 3D
+  mode_3d:=false;
+  img3d:=Timg3d.create;
+  //инструмент 3D-вращения (выключено)
+  Move3dInWorkFlag:=false;
   ComposeImageView;
   RefreshStatusBar;
+  //Опорные точки
+  for i:=0 to Length(Layers)-1 do
+  begin
+    SetLength(Layers[i].FixCoords,100);
+    for j:=0 to length(Layers[i].FixCoords)-1 do
+    begin
+      Layers[i].FixCoords[j].x:=-1;
+      Layers[i].FixCoords[j].y:=-1;
+    end;
+  end;
+
+  GridCoords.RowCount:=length(Layers[0].FixCoords);
+  for i:=0 to length(Layers[0].FixCoords)-1 do
+  begin
+    GridCoords.Cells[0,i]:=IntToStr(i);
+    GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
+    GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
+  end;
+end;
+
+//если изменено содержимое таблицы опорных точек, то изменить массив опорных точек
+procedure TForm1.GridCoordsEditingDone(Sender: TObject);
+var i:integer;
+begin
+  for i:=0 to GridCoords.RowCount-1 do
+  begin
+    if GridCoords.Cells[1,i]<>'' then Layers[LayerCode].FixCoords[i].x:=StrToInt(GridCoords.Cells[1,i]);
+    if GridCoords.Cells[2,i]<>'' then Layers[LayerCode].FixCoords[i].y:=StrToInt(GridCoords.Cells[2,i]);
+  end;
 end;
 
 procedure TForm1.ButtonFilterKoeffClick(Sender: TObject);
@@ -583,6 +656,32 @@ begin
   MatrixFilter_k31:=StrToFloat(GridFilterKoeff.Cells[0,2])/k;
   MatrixFilter_k32:=StrToFloat(GridFilterKoeff.Cells[1,2])/k;
   MatrixFilter_k33:=StrToFloat(GridFilterKoeff.Cells[2,2])/k;
+  end;
+end;
+
+//Принудительная переустановка числа опорных точек слоя
+procedure TForm1.ButtonFixCoordsNumClick(Sender: TObject);
+var i,n,n_orig:integer; tmp:array of TPoint;
+begin
+  n_orig:=length(Layers[LayerCode].FixCoords);
+  SetLength(tmp,n_orig);
+  for i:=0 to n_orig-1 do tmp[i]:=Layers[LayerCode].FixCoords[i];
+  n:=StrToInt(EditFixCoordsNum.text);
+  SetLength(Layers[LayerCode].FixCoords,n);
+  if n_orig>n then n_orig:=n;
+  for i:=0 to n_orig-1 do Layers[LayerCode].FixCoords[i]:=tmp[i];
+  for i:=n_orig to n-1 do
+  begin
+    Layers[LayerCode].FixCoords[i].x:=-1;
+    Layers[LayerCode].FixCoords[i].y:=-1;
+  end;
+  Setlength(tmp,0);
+  GridCoords.RowCount:=n;
+  for i:=0 to n-1 do
+  begin
+    GridCoords.Cells[0,i]:=IntToStr(i);
+    GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
+    GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
   end;
 end;
 
@@ -629,7 +728,10 @@ begin
   TranslateToolInWorkFlag:=false;
   RotateToolInWorkFlag:=false;
   ScaleToolInWorkFlag:=false;
+  Move3dInWorkFlag:=false;
 
+  //запоминаем код нажатой на мыше кнопки
+  MouseButton:=ord(Button);
   //перемещаем стек координат мышиного курсора
   for i:=length(MouseCoords)-1 downto 1 do MouseCoords[i]:=MouseCoords[i-1];
   MouseCoords[0].X:=X-SummaryIMG.parent_x0;
@@ -642,6 +744,10 @@ begin
   //ПКМ - сдвиг окна просмотра части изображения
   if (Button=mbRight)and(not(ssShift in Shift))and(not(ssCtrl in Shift)) then
       begin ImageViewShiftFlag:=true; InstrumentInWorkFlag:=false; end;
+  //Если включен режим 3D
+  if (Button=mbLeft) and mode_3d then
+      begin Move3dInWorkFlag:=true; InstrumentInWorkFlag:=false; end;
+
   //SHIFT+ЛКМ - выделение участка изображения
   if (Button=mbLeft)and(ssShift in Shift)and(not(ssCtrl in Shift)) then
   begin SelectionToolInWorkFlag:=true; InstrumentInWorkFlag:=false; end;
@@ -701,6 +807,7 @@ procedure TForm1.ImageViewMouseMove(Sender: TObject; Shift: TShiftState; X,Y: In
 var tmp_IMG:TIMG;
     i,tmp_x0,tmp_y0:integer;
     k_scale:real;
+    tmp_boolean:boolean;
 begin
   ////заносим координаты мышиного курсора в стек координат мышиного курсора
   MouseCoords[0].X:=X-SummaryIMG.parent_x0;
@@ -727,6 +834,25 @@ begin
     ImageView.Canvas.FillRect(SummaryIMG.parent_x0+SummaryIMG.width,SummaryIMG.parent_y0,ImageView.Width,SummaryIMG.parent_y0+SummaryIMG.height);
     ImageView.Canvas.Draw(SummaryIMG.parent_x0,SummaryIMG.parent_y0,ImageViewBitmap);
     DrawSelectionFrame;
+  end;
+
+  //если включен режим трехмерного моделирования и 3D-вращений
+  if Move3dInWorkFlag then
+  begin
+    if (MouseCoords[1].X-MouseCoords[0].X)>30 then img3d.rotate_xz(Pi/90);
+    if (MouseCoords[1].X-MouseCoords[0].X)<-30 then img3d.rotate_xz(-Pi/90);
+    if (MouseCoords[1].Y-MouseCoords[0].Y)>30 then img3d.rotate_yz(Pi/90);
+    if (MouseCoords[1].Y-MouseCoords[0].Y)<-30 then img3d.rotate_yz(-Pi/90);
+    //img3d.rotate_xz(-Pi*(MouseCoords[1].X-MouseCoords[0].X)/180);
+    //img3d.rotate_yz(Pi*(MouseCoords[1].Y-MouseCoords[0].Y)/180);
+    img3d.Draw3dToImg(WorkImg,1,true);
+    //отрисовка
+    tmp_boolean:=DontAddComposeToCollectionFlag;
+    DontAddComposeToCollectionFlag:=true;
+    DontComposeLayersFlag:=true;
+    ComposeImageView;
+    RefreshStatusBar;
+    DontAddComposeToCollectionFlag:=tmp_boolean;
   end;
 
   //если активирован инструмент выделения, то
@@ -866,6 +992,8 @@ end;
 procedure TForm1.ImageViewMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
+  //если были 3D-вращения, то перерисовываем в лучшем качестве
+  if Move3dInWorkFlag then img3d.Draw3dToImg(WorkImg,2,true);
   //фиксируем результат на слое рисования из промежуточного буфера
   WorkIMG.CloneToIMG(Layers[LayerCode]);
   //сбрасываем все флаги, которые были актуальны при движении мышиного курсора
@@ -874,6 +1002,7 @@ begin
   TranslateToolInWorkFlag:=false;
   RotateToolInWorkFlag:=false;
   ScaleToolInWorkFlag:=false;
+  Move3dInWorkFlag:=false;
   //отрисовка
   WorkIMG.clrscr(-1);
   ComposeImageView;
@@ -882,6 +1011,48 @@ begin
   //над окном просмотра части изображения
   ImageViewShiftFlag:=false;
   SelectionToolInWorkFlag:=false;
+  //отключаем код нажатой на мыше кнопки
+  MouseButton:=-1;
+end;
+
+//обработка колеса мыши над полотном рисования (уменьшение 3D)
+procedure TForm1.ImageViewMouseWheelDown(Sender: TObject; Shift: TShiftState;
+  MousePos: TPoint; var Handled: Boolean);
+var tmp_boolean:boolean;
+begin
+   if mode_3d then
+   begin
+        //Move3dInWorkFlag:=true;
+        img3d.scale_x(0.95); img3d.scale_y(0.95); img3d.scale_z(0.95);
+        img3d.Draw3dToImg(WorkImg,1,true);
+        //отрисовка
+        tmp_boolean:=DontAddComposeToCollectionFlag;
+        DontAddComposeToCollectionFlag:=true;
+        DontComposeLayersFlag:=true;
+        ComposeImageView;
+        RefreshStatusBar;
+        DontAddComposeToCollectionFlag:=tmp_boolean;
+   end;
+end;
+
+//обработка колеса мыши над полотном рисования (увеличение 3D)
+procedure TForm1.ImageViewMouseWheelUp(Sender: TObject; Shift: TShiftState;
+  MousePos: TPoint; var Handled: Boolean);
+var tmp_boolean:boolean;
+begin
+   if mode_3d then
+   begin
+        //Move3dInWorkFlag:=true;
+        img3d.scale_x(1.05); img3d.scale_y(1.05); img3d.scale_z(1.05);
+        img3d.Draw3dToImg(WorkImg,1,true);
+        //отрисовка
+        tmp_boolean:=DontAddComposeToCollectionFlag;
+        DontAddComposeToCollectionFlag:=true;
+        DontComposeLayersFlag:=true;
+        ComposeImageView;
+        RefreshStatusBar;
+        DontAddComposeToCollectionFlag:=tmp_boolean;
+   end;
 end;
 
 //процедура обновления содержимого полотна рисования
@@ -952,9 +1123,31 @@ begin
   ComposeImageView;
 end;
 
-procedure TForm1.MenuItemCircleClick(Sender: TObject);
+//центрирование 3D-модели
+procedure TForm1.MenuItemCenter3DClick(Sender: TObject);
+var i:integer; xc,yc,zc:real;
 begin
-
+  if img3d.n_coords>0 then
+  begin
+       xc:=0; yc:=0; zc:=0;
+       for i:=0 to img3d.n_coords-1 do
+       begin
+            xc:=xc+img3d.coords[i].x;
+            yc:=yc+img3d.coords[i].y;
+            zc:=zc+img3d.coords[i].z;
+       end;
+       xc:=xc/img3d.n_coords;
+       yc:=yc/img3d.n_coords;
+       zc:=zc/img3d.n_coords;
+       for i:=0 to img3d.n_coords-1 do
+       begin
+            img3d.coords[i].x:=img3d.coords[i].x-xc;
+            img3d.coords[i].y:=img3d.coords[i].y-yc;
+            img3d.coords[i].z:=img3d.coords[i].z-zc;
+       end;
+       img3d.Draw3dToImg(Layers[LayerCode],2,true);
+       ComposeImageView;
+  end;
 end;
 
 //Восстановление от соли и перца зашумленного изображения
@@ -985,6 +1178,86 @@ begin
   z_max.im:=StrToFloat(InputBox('Фрактал Мандельброта','y_max=','1.25'));
   DrawFractalMandelbrot(SelIMG,z_min,z_max,n);
   SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
+//генерация координатной модели куба
+procedure TForm1.MenuItemGenerateCube3DClick(Sender: TObject);
+begin
+     img3d.SetParams(8,12);
+     img3d.Coords[0].x:=-50; img3d.Coords[0].y:=-50; img3d.Coords[0].z:=-50;
+     img3d.Coords[1].x:=50;  img3d.Coords[1].y:=-50; img3d.Coords[1].z:=-50;
+     img3d.Coords[2].x:=-50; img3d.Coords[2].y:=50;  img3d.Coords[2].z:=-50;
+     img3d.Coords[3].x:=50;  img3d.Coords[3].y:=50;  img3d.Coords[3].z:=-50;
+     img3d.Coords[4].x:=-50; img3d.Coords[4].y:=-50; img3d.Coords[4].z:=50;
+     img3d.Coords[5].x:=50;  img3d.Coords[5].y:=-50; img3d.Coords[5].z:=50;
+     img3d.Coords[6].x:=-50; img3d.Coords[6].y:=50;  img3d.Coords[6].z:=50;
+     img3d.Coords[7].x:=50;  img3d.Coords[7].y:=50;  img3d.Coords[7].z:=50;
+
+     img3d.trios[0].p1:=0;   img3d.trios[0].p2:=1;   img3d.trios[0].p3:=2;
+     img3d.trios[0].c1:=255; img3d.trios[0].c2:=255; img3d.trios[0].c3:=255;
+
+     img3d.trios[1].p1:=1;   img3d.trios[1].p2:=3;   img3d.trios[1].p3:=2;
+     img3d.trios[1].c1:=255; img3d.trios[1].c2:=255; img3d.trios[1].c3:=255;
+
+     img3d.trios[2].p1:=1;   img3d.trios[2].p2:=5;   img3d.trios[2].p3:=3;
+     img3d.trios[2].c1:=255; img3d.trios[2].c2:=255; img3d.trios[2].c3:=255;
+
+     img3d.trios[3].p1:=5;   img3d.trios[3].p2:=7;   img3d.trios[3].p3:=3;
+     img3d.trios[3].c1:=255; img3d.trios[3].c2:=255; img3d.trios[3].c3:=255;
+
+     img3d.trios[4].p1:=2;   img3d.trios[4].p2:=3;   img3d.trios[4].p3:=6;
+     img3d.trios[4].c1:=255; img3d.trios[4].c2:=255; img3d.trios[4].c3:=255;
+
+     img3d.trios[5].p1:=3;   img3d.trios[5].p2:=7;   img3d.trios[5].p3:=6;
+     img3d.trios[5].c1:=255; img3d.trios[5].c2:=255; img3d.trios[5].c3:=255;
+
+     img3d.trios[6].p1:=0;   img3d.trios[6].p2:=4;   img3d.trios[6].p3:=1;
+     img3d.trios[6].c1:=255; img3d.trios[6].c2:=255; img3d.trios[6].c3:=255;
+
+     img3d.trios[7].p1:=5;   img3d.trios[7].p2:=4;   img3d.trios[7].p3:=1;
+     img3d.trios[7].c1:=255; img3d.trios[7].c2:=255; img3d.trios[7].c3:=255;
+
+     img3d.trios[8].p1:=0;   img3d.trios[8].p2:=2;   img3d.trios[8].p3:=4;
+     img3d.trios[8].c1:=255; img3d.trios[8].c2:=255; img3d.trios[8].c3:=255;
+
+     img3d.trios[9].p1:=2;   img3d.trios[9].p2:=6;   img3d.trios[9].p3:=4;
+     img3d.trios[9].c1:=255; img3d.trios[9].c2:=255; img3d.trios[9].c3:=255;
+
+     img3d.trios[10].p1:=4;   img3d.trios[10].p2:=6;   img3d.trios[10].p3:=5;
+     img3d.trios[10].c1:=255; img3d.trios[10].c2:=255; img3d.trios[10].c3:=255;
+
+     img3d.trios[11].p1:=6;   img3d.trios[11].p2:=7;   img3d.trios[11].p3:=5;
+     img3d.trios[11].c1:=255; img3d.trios[11].c2:=255; img3d.trios[11].c3:=255;
+
+     img3d.Draw3dToImg(Layers[LayerCode],2,true);
+     ComposeImageView;
+end;
+
+//генерация координатной модели тетраэдра
+procedure TForm1.MenuItemGenerateTetraedr3DClick(Sender: TObject);
+var R,h:real;
+begin
+  img3d.SetParams(4,4);
+  R:=100*sqrt(6)/4; h:=100*sqrt(2/3);
+  img3d.Coords[0].x:=0; img3d.Coords[0].y:=R; img3d.Coords[0].z:=R-h;
+  img3d.Coords[1].x:=R*cos(Pi/6);  img3d.Coords[1].y:=R-h; img3d.Coords[1].z:=R-h;
+  img3d.Coords[2].x:=-R*cos(Pi/6); img3d.Coords[2].y:=R-h;  img3d.Coords[2].z:=R-h;
+  img3d.Coords[3].x:=0;  img3d.Coords[3].y:=0;  img3d.Coords[3].z:=R;
+
+  img3d.trios[0].p1:=0;   img3d.trios[0].p2:=1;   img3d.trios[0].p3:=2;
+  img3d.trios[0].c1:=255; img3d.trios[0].c2:=255; img3d.trios[0].c3:=255;
+
+  img3d.trios[1].p1:=0;   img3d.trios[1].p2:=3;   img3d.trios[1].p3:=1;
+  img3d.trios[1].c1:=255; img3d.trios[1].c2:=255; img3d.trios[1].c3:=255;
+
+  img3d.trios[2].p1:=0;   img3d.trios[2].p2:=2;   img3d.trios[2].p3:=3;
+  img3d.trios[2].c1:=255; img3d.trios[2].c2:=255; img3d.trios[2].c3:=255;
+
+  img3d.trios[3].p1:=1;   img3d.trios[3].p2:=3;   img3d.trios[3].p3:=2;
+  img3d.trios[3].c1:=255; img3d.trios[3].c2:=255; img3d.trios[3].c3:=255;
+
+  img3d.Draw3dToImg(Layers[LayerCode],2,true);
   ComposeImageView;
 end;
 
@@ -1257,6 +1530,45 @@ begin
   tmp_img.done;
 end;
 
+//загрузка массива опорных точек из внешнего файла
+procedure TForm1.MenuItemLoadFixCoordsClick(Sender: TObject);
+var f:text; tmp:string; i,n:integer;
+begin
+  if OpenDialog1.execute then
+  begin
+    assignfile(f,OpenDialog1.FileName); reset(f);
+    n:=0;
+    while not(eof(f)) do begin n:=n+1; readln(f,tmp); end;
+    reset(f);
+
+    SetLength(Layers[LayerCode].FixCoords,n);
+    for i:=0 to n-1 do
+      readln(f,Layers[LayerCode].FixCoords[i].x,Layers[LayerCode].FixCoords[i].y);
+    CloseFile(f);
+
+    GridCoords.RowCount:=n;
+    for i:=0 to n-1 do
+    begin
+      GridCoords.Cells[0,i]:=IntToStr(i);
+      GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
+      GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
+    end;
+  end;
+end;
+
+//загрузка 3D-файла в формате STL
+procedure TForm1.MenuItemLoadSTLClick(Sender: TObject);
+begin
+  if mode_3d then
+     if OpenDialog1.execute then
+     begin
+       img3d.LoadFromStl(OpenDialog1.filename);
+       img3d.Draw3dToImg(Layers[0],3,true);
+       ComposeImageView;
+     end;
+  if not(mode_3d) then MessageBox(0,'Включите режим 3D','Включите режим 3D',MB_OK);
+end;
+
 //Низкочастотный фильтр (оставить коэффициенты в центре ДПФ-матрицы)
 procedure TForm1.MenuItemLowPassFourieClick(Sender: TObject);
 var y,x:integer;
@@ -1501,9 +1813,18 @@ end;
 
 //выбор слоя рисования из меню
 procedure TForm1.MenuItemLayer0Click(Sender: TObject);
+var i:integer;
 begin
     LayerCode:=(sender as TMenuItem).tag;
     RefreshStatusBar;
+
+    GridCoords.RowCount:=length(Layers[LayerCode].FixCoords);
+    for i:=0 to length(Layers[LayerCode].FixCoords)-1 do
+    begin
+      GridCoords.Cells[0,i]:=IntToStr(i);
+      GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
+      GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
+    end;
 end;
 
 //загрузить "много" изображений в коллекцию (например, это эталоны распознавания)
@@ -1583,6 +1904,27 @@ begin
   NoiseLevel:=StrToFloat(InputBox('процент зашумления','Введите процент зашумления','100'));
   FilterSaultPepper(SelIMG,NoiseLevel);
   SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  ComposeImageView;
+end;
+
+//рисование ломаной по таблице опорных точек
+procedure TForm1.MenuItemPolygonOpenClick(Sender: TObject);
+var i,k,n,x1,y1,x2,y2:integer;
+begin
+  n:=0;
+  for i:=0 to GridCoords.RowCount-1 do
+  if (GridCoords.Cells[1,i]<>'') and (GridCoords.Cells[2,i]<>'') then n:=n+1;
+
+  if n>0 then
+  begin
+    x1:=Layers[LayerCode].FixCoords[0].x; y1:=Layers[LayerCode].FixCoords[0].y;
+    for i:=1 to length(Layers[LayerCode].FixCoords)-1 do
+    begin
+      x2:=Layers[LayerCode].FixCoords[i].x; y2:=Layers[LayerCode].FixCoords[i].y;
+      if (x2>=0) and (y2>=0) then Layers[LayerCode].Line(x1,y1,x2,y2,PenColor);
+      x1:=abs(x2); y1:=abs(y2);
+    end;
+  end;
   ComposeImageView;
 end;
 
@@ -1677,6 +2019,20 @@ begin
   if SelectDirectoryDialog.execute then
   for i:=0 to length(Collection)-1 do
     Collection[i].SaveToFile(SelectDirectoryDialog.FileName+PathDelim+Collection[i].name+'.jpg');
+end;
+
+//сохранение списка опорных точек в внешний файл
+procedure TForm1.MenuItemSaveFixCoordsClick(Sender: TObject);
+var f:text; i:integer;
+begin
+  if OpenDialog1.execute then
+  begin
+    AssignFile(f,OpenDialog1.FileName);
+    rewrite(f);
+    for i:=0 to length(Layers[LayerCode].FixCoords)-1 do
+      writeln(f,Layers[LayerCode].FixCoords[i].x,' ',Layers[LayerCode].FixCoords[i].y);
+    CloseFile(f);
+  end;
 end;
 
 procedure TForm1.MenuItemSearchRegionsClick(Sender: TObject);
@@ -1851,6 +2207,19 @@ begin
   DontAddComposeToCollectionFlag:=true;
   ComposeImageView;
   RefreshStatusBar;
+end;
+
+procedure TForm1.MenuItemVectorizeClick(Sender: TObject);
+begin
+
+end;
+
+procedure TForm1.MenuItem_3D_on_offClick(Sender: TObject);
+begin
+     mode_3d:=not(mode_3d);
+     if mode_3d then MenuItem_3D_on_off.Caption:='Выключить режим 3D';
+     if not(mode_3d) then MenuItem_3D_on_off.Caption:='Включить режим 3D';
+     RefreshStatusBar;
 end;
 
 //реакция на движение мыши поверх коллекции изображений
