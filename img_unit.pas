@@ -693,8 +693,8 @@ procedure TIMG.CopyFromClipboard;
 var tmp_bitmap:TBitmap; tmp_IMG:TIMG; tmp_x0,tmp_y0:integer;
 begin
   tmp_bitmap:=TBitmap.Create;
-  if Clipboard.HasFormat(PredefinedClipboardFormat(pcfDelphiBitmap)) then
-     tmp_bitmap.LoadFromClipboardFormat(PredefinedClipboardFormat(pcfDelphiBitmap));
+  if Clipboard.HasFormat(PredefinedClipboardFormat(pcfBitmap)) then
+     tmp_bitmap.LoadFromClipboardFormat(PredefinedClipboardFormat(pcfBitmap));
   if Clipboard.HasFormat(PredefinedClipboardFormat(pcfBitmap)) then
      tmp_bitmap.LoadFromClipboardFormat(PredefinedClipboardFormat(pcfBitmap));
   tmp_x0:=parent_x0; tmp_y0:=parent_y0;
