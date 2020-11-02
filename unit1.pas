@@ -31,12 +31,15 @@ type
   TForm1 = class(TForm)
     BrushColorDialog: TColorDialog;
     ButtonFixCoordsNum: TButton;
+    ButtonVectorsNum: TButton;
     Button_DFT_params: TButton;
     ButtonAreasParams: TButton;
     ButtonAffineKoeff: TButton;
     ButtonFilterKoeff: TButton;
     CheckBoxShowImages: TCheckBox;
+    EditVectorMin: TEdit;
     EditFixCoordsNum: TEdit;
+    EditVectorsNum: TEdit;
     Edit_DFT_width: TEdit;
     EditAreasMinPixels: TEdit;
     EditAreasContrast: TEdit;
@@ -44,12 +47,15 @@ type
     Edit_DFT_height: TEdit;
     GridAffineKoeff: TStringGrid;
     GridCoords: TStringGrid;
+    GridVectors: TStringGrid;
     GridFilterKoeff: TStringGrid;
     Label1: TLabel;
     Label2: TLabel;
     Label3: TLabel;
     Label4: TLabel;
+    Label6: TLabel;
     LabelCoords: TLabel;
+    LabelVectorPTRS: TLabel;
     Label_3D: TLabel;
     LabelCollection: TLabel;
     LabelAreasMinPixels: TLabel;
@@ -74,9 +80,17 @@ type
     LabelColorRed: TLabel;
     LabelColorSaturation: TLabel;
     LabelColorvalue: TLabel;
+    MenuItemSaveSTL: TMenuItem;
+    MenuItemFileOpenScale: TMenuItem;
+    MenuItemVectorize: TMenuItem;
+    MenuItemPsetFixCoords: TMenuItem;
+    MenuItemDetectBorderPixels: TMenuItem;
+    MenuItemPolygonVectors: TMenuItem;
+    MenuItemLoadVectors: TMenuItem;
+    MenuItemSaveVectors: TMenuItem;
     MenuItemLoadFixCoords: TMenuItem;
     MenuItemSaveFixCoords: TMenuItem;
-    MenuItemPolygonOpen: TMenuItem;
+    MenuItemPolygonFixCoords: TMenuItem;
     MenuItemGenerateCube3D: TMenuItem;
     MenuItemGenerateTetraedr3D: TMenuItem;
     MenuItemCenter3D: TMenuItem;
@@ -100,6 +114,7 @@ type
     MenuItemPepper: TMenuItem;
     MenuItemSaultPepper: TMenuItem;
     OpenDialog1: TOpenDialog;
+    SaveDialog1: TSaveDialog;
     TextConsole: TMemo;
     MenuItemFractalLandscape: TMenuItem;
     MenuItemFractalMandelbrot: TMenuItem;
@@ -250,9 +265,11 @@ type
     procedure ButtonAreasParamsClick(Sender: TObject);
     procedure ButtonFilterKoeffClick(Sender: TObject);
     procedure ButtonFixCoordsNumClick(Sender: TObject);
+    procedure ButtonVectorsNumClick(Sender: TObject);
     procedure Button_DFT_paramsClick(Sender: TObject);
     procedure FormCreate(Sender: TObject);
     procedure GridCoordsEditingDone(Sender: TObject);
+    procedure GridVectorsEditingDone(Sender: TObject);
     procedure ImageViewMouseDown(Sender: TObject; Button: TMouseButton;
       Shift: TShiftState; X, Y: Integer);
     procedure ImageViewMouseMove(Sender: TObject; Shift: TShiftState; X, Y: Integer);
@@ -272,6 +289,7 @@ type
     procedure MenuItemCenter3DClick(Sender: TObject);
     procedure MenuItemDePepperClick(Sender: TObject);
     procedure MenuItemDePepperShowClick(Sender: TObject);
+    procedure MenuItemFileOpenScaleClick(Sender: TObject);
     procedure MenuItemFractalMandelbrotClick(Sender: TObject);
     procedure MenuItemGenerateCube3DClick(Sender: TObject);
     procedure MenuItemGenerateTetraedr3DClick(Sender: TObject);
@@ -293,6 +311,7 @@ type
     procedure MenuItemIMGtoRedReFourieClick(Sender: TObject);
     procedure MenuItemLoadFixCoordsClick(Sender: TObject);
     procedure MenuItemLoadSTLClick(Sender: TObject);
+    procedure MenuItemLoadVectorsClick(Sender: TObject);
     procedure MenuItemLowPassFourieClick(Sender: TObject);
     procedure MenuItemContourClick(Sender: TObject);
     procedure MenuItemContrastDecreaseClick(Sender: TObject);
@@ -318,8 +337,10 @@ type
     procedure MenuItemNegativeClick(Sender: TObject);
     procedure MenuItemNoiseClick(Sender: TObject);
     procedure MenuItemPepperClick(Sender: TObject);
-    procedure MenuItemPolygonOpenClick(Sender: TObject);
+    procedure MenuItemPolygonFixCoordsClick(Sender: TObject);
+    procedure MenuItemPolygonVectorsClick(Sender: TObject);
     procedure MenuItemPrintClick(Sender: TObject);
+    procedure MenuItemPsetFixCoordsClick(Sender: TObject);
     procedure MenuItemPSNRClick(Sender: TObject);
     procedure MenuItemRecognitionClick(Sender: TObject);
     procedure MenuItemRedChannelCleanClick(Sender: TObject);
@@ -327,6 +348,8 @@ type
     procedure MenuItemSaultPepperClick(Sender: TObject);
     procedure MenuItemSaveCollectionClick(Sender: TObject);
     procedure MenuItemSaveFixCoordsClick(Sender: TObject);
+    procedure MenuItemSaveSTLClick(Sender: TObject);
+    procedure MenuItemSaveVectorsClick(Sender: TObject);
     procedure MenuItemSearchRegionsClick(Sender: TObject);
     procedure MenuItemSelectAllClick(Sender: TObject);
     procedure MenuItemSharpenClick(Sender: TObject);
@@ -341,6 +364,7 @@ type
     procedure MenuItemFileSaveClick(Sender: TObject);
     procedure MenuItemSetPixelClick(Sender: TObject);
     procedure MenuItemTransp0Click(Sender: TObject);
+    procedure MenuItemDetectBorderPixelsClick(Sender: TObject);
     procedure MenuItemVectorizeClick(Sender: TObject);
     procedure MenuItem_3D_on_offClick(Sender: TObject);
     procedure PBoxCollectionMouseMove(Sender: TObject; Shift: TShiftState; X,
@@ -378,6 +402,8 @@ type
     procedure DrawCollectionBox; //рисование изображений коллекции
     procedure DrawSelectionFrame; //отмечаем на сводном изображение область выделения
     procedure RecalcBuffers(new_width,new_height:integer); //пересоздание всех глобальных буферов под заданные размеры
+    procedure Img3dToGrids; //отображение координат вертексов и треугольников в таблицах GUI
+    procedure FixCoordsToGrids; //отображение координат опорных точек и отрезков в таблицах GUI
   end;
 
 var
@@ -388,6 +414,64 @@ implementation
 {$R *.lfm}
 
 { TForm1 }
+
+//отображение координат опорных точек и отрезков в таблицах GUI
+procedure TForm1.FixCoordsToGrids;
+var i,n:integer;
+begin
+  if not(mode_3d) then
+  begin
+    n:=length(Layers[LayerCode].FixCoords);
+    EditFixCoordsNum.Text:=IntToStr(n);
+    GridCoords.RowCount:=n;
+    for i:=0 to n-1 do
+    begin
+      GridCoords.Cells[0,i]:=IntToStr(i);
+      GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
+      GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
+    end;
+
+    n:=length(Layers[LayerCode].Vectors);
+    EditVectorsNum.text:=IntToStr(n);
+    GridVectors.RowCount:=n;
+    for i:=0 to n-1 do
+    begin
+      GridVectors.Cells[0,i]:=IntToStr(i);
+      GridVectors.Cells[1,i]:=IntToStr(Layers[LayerCode].Vectors[i].x);
+      GridVectors.Cells[2,i]:=IntToStr(Layers[LayerCode].Vectors[i].y);
+    end;
+  end;
+end;
+
+//отображение координат вертексов и треугольников в таблицах GUI
+procedure TForm1.Img3dToGrids;
+var i,n:integer;
+begin
+  if mode_3d then
+  begin
+      n:=img3d.n_coords;
+      EditFixCoordsNum.Text:=IntToStr(n);
+      GridCoords.RowCount:=n;
+      for i:=0 to n-1 do
+      begin
+        GridCoords.Cells[0,i]:=IntToStr(i);
+        GridCoords.Cells[1,i]:=IntToStr(trunc(img3d.coords[i].x));
+        GridCoords.Cells[2,i]:=IntToStr(trunc(img3d.coords[i].y));
+        GridCoords.Cells[3,i]:=IntToStr(trunc(img3d.coords[i].z));
+      end;
+
+      n:=img3d.n_trios;
+      EditVectorsNum.Text:=IntToStr(n);
+      GridVectors.RowCount:=n;
+      for i:=0 to n-1 do
+      begin
+        GridVectors.Cells[0,i]:=IntToStr(i);
+        GridVectors.Cells[1,i]:=IntToStr(img3d.trios[i].p1);
+        GridVectors.Cells[2,i]:=IntToStr(img3d.trios[i].p2);
+        GridVectors.Cells[3,i]:=IntToStr(img3d.trios[i].p3);
+      end;
+  end;
+end;
 
 //пересоздание всех глобальных буферов под заданные размеры
 procedure TForm1.RecalcBuffers(new_width,new_height:integer);
@@ -577,6 +661,7 @@ begin
   //настройка подсистемы распознавания образов
   area_min_pixels:=100;
   area_contrast_level:=100;
+  vector_min_d:=10;
   //создаем полотно лупы
   MagnifyIMG:=TIMG.create;
   MagnifyIMG.SetSize(PBoxMagnify.width,PBoxMagnify.height);
@@ -600,7 +685,7 @@ begin
   //нулевой слой - непрозрачный, остальные - полностью прозрачные
   LayersTransparency[0]:=0;
   for i:=1 to length(Layers)-1 do LayersTransparency[i]:=1;
-  RecalcBuffers(512,512);
+  RecalcBuffers(256,256);
   Button_DFT_paramsClick(self);
   //DontAddComposeToCollectionFlag:=true;
   //выключаем режим 3D
@@ -608,6 +693,11 @@ begin
   img3d:=Timg3d.create;
   //инструмент 3D-вращения (выключено)
   Move3dInWorkFlag:=false;
+  //первое изображение - пустое
+  ComposeImageView;
+  //Загружем и прорисовываем изображение lenna.png
+  Layers[0].LoadFromFile('lenna.png');
+  Layers[0].ReSize(WorkIMG.width,WorkIMG.height);
   ComposeImageView;
   RefreshStatusBar;
   //Опорные точки
@@ -628,17 +718,65 @@ begin
     GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
     GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
   end;
+
+  //векторы
+  for i:=0 to Length(Layers)-1 do
+  begin
+    SetLength(Layers[i].Vectors,100);
+    for j:=0 to length(Layers[i].Vectors)-1 do
+    begin
+      Layers[i].Vectors[j].x:=-1;
+      Layers[i].Vectors[j].y:=-1;
+    end;
+  end;
+
+  GridVectors.RowCount:=length(Layers[0].Vectors);
+  for i:=0 to length(Layers[0].Vectors)-1 do
+  begin
+    GridVectors.Cells[0,i]:=IntToStr(i);
+    GridVectors.Cells[1,i]:=IntToStr(Layers[LayerCode].Vectors[i].x);
+    GridVectors.Cells[2,i]:=IntToStr(Layers[LayerCode].Vectors[i].y);
+  end;
 end;
 
 //если изменено содержимое таблицы опорных точек, то изменить массив опорных точек
 procedure TForm1.GridCoordsEditingDone(Sender: TObject);
 var i:integer;
 begin
-  for i:=0 to GridCoords.RowCount-1 do
-  begin
-    if GridCoords.Cells[1,i]<>'' then Layers[LayerCode].FixCoords[i].x:=StrToInt(GridCoords.Cells[1,i]);
-    if GridCoords.Cells[2,i]<>'' then Layers[LayerCode].FixCoords[i].y:=StrToInt(GridCoords.Cells[2,i]);
-  end;
+  //for i:=0 to GridCoords.RowCount-1 do
+  //begin
+  //  if mode_3d then
+  //  begin
+  //    if GridCoords.Cells[1,i]<>'' then img3d.coords[i].x:=StrToFloat(GridCoords.Cells[1,i]);
+  //    if GridCoords.Cells[2,i]<>'' then img3d.coords[i].y:=StrToFloat(GridCoords.Cells[2,i]);
+  //    if GridCoords.Cells[3,i]<>'' then img3d.coords[i].z:=StrToFloat(GridCoords.Cells[3,i]);
+  //  end else
+  //  begin
+  //    if GridCoords.Cells[1,i]<>'' then Layers[LayerCode].FixCoords[i].x:=StrToInt(GridCoords.Cells[1,i]);
+  //    if GridCoords.Cells[2,i]<>'' then Layers[LayerCode].FixCoords[i].y:=StrToInt(GridCoords.Cells[2,i]);
+  //  end;
+  //end;
+  //if mode_3d then begin img3d.Draw3dToImg(Layers[0],1,true); ComposeImageView; end;
+end;
+
+//если изменено содержимое таблицы векторов, то изменить массив опорных точек
+procedure TForm1.GridVectorsEditingDone(Sender: TObject);
+var i:integer;
+begin
+  //for i:=0 to GridVectors.RowCount-1 do
+  //begin
+  //  if mode_3d then
+  //  begin
+  //    if GridVectors.Cells[1,i]<>'' then img3d.trios[i].p1:=StrToInt(GridVectors.Cells[1,i]);
+  //    if GridVectors.Cells[2,i]<>'' then img3d.trios[i].p2:=StrToInt(GridVectors.Cells[2,i]);
+  //    if GridVectors.Cells[3,i]<>'' then img3d.trios[i].p3:=StrToInt(GridVectors.Cells[3,i]);
+  //  end else
+  //  begin
+  //    if GridVectors.Cells[1,i]<>'' then Layers[LayerCode].Vectors[i].x:=StrToInt(GridVectors.Cells[1,i]);
+  //    if GridVectors.Cells[2,i]<>'' then Layers[LayerCode].Vectors[i].y:=StrToInt(GridVectors.Cells[2,i]);
+  //  end;
+  //end;
+  //if mode_3d then begin img3d.Draw3dToImg(Layers[0],1,true); ComposeImageView; end;
 end;
 
 procedure TForm1.ButtonFilterKoeffClick(Sender: TObject);
@@ -661,27 +799,107 @@ end;
 
 //Принудительная переустановка числа опорных точек слоя
 procedure TForm1.ButtonFixCoordsNumClick(Sender: TObject);
-var i,n,n_orig:integer; tmp:array of TPoint;
+var i,n,n_orig:integer; tmp:array of TPoint; tmp_3d:array of tvector3;
 begin
-  n_orig:=length(Layers[LayerCode].FixCoords);
-  SetLength(tmp,n_orig);
-  for i:=0 to n_orig-1 do tmp[i]:=Layers[LayerCode].FixCoords[i];
-  n:=StrToInt(EditFixCoordsNum.text);
-  SetLength(Layers[LayerCode].FixCoords,n);
-  if n_orig>n then n_orig:=n;
-  for i:=0 to n_orig-1 do Layers[LayerCode].FixCoords[i]:=tmp[i];
-  for i:=n_orig to n-1 do
+  if mode_3d then
   begin
-    Layers[LayerCode].FixCoords[i].x:=-1;
-    Layers[LayerCode].FixCoords[i].y:=-1;
+    n_orig:=GridCoords.RowCount; //(img3d.coords);
+    SetLength(tmp_3d,n_orig);
+    for i:=0 to n_orig-1 do //tmp_3d[i]:=img3d.Coords[i];
+    begin
+      if GridCoords.Cells[1,i]<>'' then tmp_3d[i].x:=StrToFloat(GridCoords.Cells[1,i]);
+      if GridCoords.Cells[2,i]<>'' then tmp_3d[i].y:=StrToFloat(GridCoords.Cells[2,i]);
+      if GridCoords.Cells[3,i]<>'' then tmp_3d[i].z:=StrToFloat(GridCoords.Cells[3,i]);
+    end;
+    n:=StrToInt(EditFixCoordsNum.text);
+    SetLength(img3d.Coords,n); img3d.n_coords:=n;
+    if n_orig>n then n_orig:=n;
+    for i:=0 to n_orig-1 do img3d.coords[i]:=tmp_3d[i];
+    for i:=n_orig to n-1 do
+    begin
+      img3d.Coords[i].x:=0;
+      img3d.Coords[i].y:=0;
+      img3d.Coords[i].z:=0;
+    end;
+    Setlength(tmp_3d,0);
+    img3dToGrids;
+    img3d.Draw3dToImg(Layers[0],1,true);
+    ComposeImageView;
+  end else
+  begin
+    n_orig:=GridCoords.RowCount; //length(Layers[LayerCode].FixCoords);
+    SetLength(tmp,n_orig);
+    for i:=0 to n_orig-1 do //tmp[i]:=Layers[LayerCode].FixCoords[i];
+    begin
+      if GridCoords.Cells[1,i]<>'' then tmp[i].x:=StrToInt(GridCoords.Cells[1,i]);
+      if GridCoords.Cells[2,i]<>'' then tmp[i].y:=StrToInt(GridCoords.Cells[2,i]);
+    end;
+    n:=StrToInt(EditFixCoordsNum.text);
+    SetLength(Layers[LayerCode].FixCoords,n);
+    if n_orig>n then n_orig:=n;
+    for i:=0 to n_orig-1 do Layers[LayerCode].FixCoords[i]:=tmp[i];
+    for i:=n_orig to n-1 do
+    begin
+      Layers[LayerCode].FixCoords[i].x:=-1;
+      Layers[LayerCode].FixCoords[i].y:=-1;
+    end;
+    Setlength(tmp,0);
+    FixCoordsToGrids;
   end;
-  Setlength(tmp,0);
-  GridCoords.RowCount:=n;
-  for i:=0 to n-1 do
+end;
+
+//принудительная переустановка числа векторов слоя
+procedure TForm1.ButtonVectorsNumClick(Sender: TObject);
+var i,n,n_orig:integer; tmp:array of TPoint; tmp_trios:array of ttrio;
+begin
+  if mode_3d then
   begin
-    GridCoords.Cells[0,i]:=IntToStr(i);
-    GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
-    GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
+    n_orig:=GridVectors.RowCount; //length(img3d.trios);
+    SetLength(tmp_trios,n_orig);
+    for i:=0 to n_orig-1 do //tmp_trios[i]:=img3d.trios[i];
+    begin
+      if GridVectors.Cells[1,i]<>'' then tmp_trios[i].p1:=StrToInt(GridVectors.Cells[1,i]);
+      if GridVectors.Cells[2,i]<>'' then tmp_trios[i].p2:=StrToInt(GridVectors.Cells[2,i]);
+      if GridVectors.Cells[3,i]<>'' then tmp_trios[i].p3:=StrToInt(GridVectors.Cells[3,i]);
+      tmp_trios[i].c1:=255; tmp_trios[i].c2:=255; tmp_trios[i].c3:=255;
+    end;
+    n:=StrToInt(EditVectorsNum.text);
+    SetLength(img3d.trios,n); img3d.n_trios:=n;
+    if n_orig>n then n_orig:=n;
+    for i:=0 to n_orig-1 do img3d.trios[i]:=tmp_trios[i];
+    for i:=n_orig to n-1 do
+    begin
+      img3d.trios[i].p1:=0;
+      img3d.trios[i].p2:=0;
+      img3d.trios[i].p3:=0;
+      img3d.trios[i].c1:=255;
+      img3d.trios[i].c2:=255;
+      img3d.trios[i].c3:=255;
+    end;
+    Setlength(tmp_trios,0);
+    img3dToGrids;
+    img3d.Draw3dToImg(Layers[0],1,true);
+    ComposeImageView;
+  end else
+  begin
+    n_orig:=GridVectors.RowCount; //length(Layers[LayerCode].Vectors);
+    SetLength(tmp,n_orig);
+    for i:=0 to n_orig-1 do //tmp[i]:=Layers[LayerCode].Vectors[i];
+    begin
+      if GridVectors.Cells[1,i]<>'' then tmp[i].x:=StrToInt(GridVectors.Cells[1,i]);
+      if GridVectors.Cells[2,i]<>'' then tmp[i].y:=StrToInt(GridVectors.Cells[2,i]);
+    end;
+    n:=StrToInt(EditVectorsNum.text);
+    SetLength(Layers[LayerCode].Vectors,n);
+    if n_orig>n then n_orig:=n;
+    for i:=0 to n_orig-1 do Layers[LayerCode].Vectors[i]:=tmp[i];
+    for i:=n_orig to n-1 do
+    begin
+      Layers[LayerCode].Vectors[i].x:=-1;
+      Layers[LayerCode].Vectors[i].y:=-1;
+    end;
+    Setlength(tmp,0);
+    FixCoordsToGrids;
   end;
 end;
 
@@ -712,6 +930,7 @@ procedure TForm1.ButtonAreasParamsClick(Sender: TObject);
 begin
   area_min_pixels:=StrToInt(EditAreasMinPixels.text);
   area_contrast_level:=StrToInt(EditAreasContrast.text);
+  vector_min_d:=StrToInt(EditVectorMin.text);
 end;
 
 //первичное действие пользователя над окном просмотра части изображения
@@ -992,8 +1211,9 @@ end;
 procedure TForm1.ImageViewMouseUp(Sender: TObject; Button: TMouseButton;
   Shift: TShiftState; X, Y: Integer);
 begin
-  //если были 3D-вращения, то перерисовываем в лучшем качестве
-  if Move3dInWorkFlag then img3d.Draw3dToImg(WorkImg,2,true);
+    //если были 3D-вращения, то перерисовываем в лучшем качестве
+    //if Move3dInWorkFlag then begin img3d.Draw3dToImg(WorkImg,2,true); Img3dToGrids; end;
+  if Move3dInWorkFlag then begin img3d.Draw3dToImg(WorkImg,1,true); Img3dToGrids; end;
   //фиксируем результат на слое рисования из промежуточного буфера
   WorkIMG.CloneToIMG(Layers[LayerCode]);
   //сбрасываем все флаги, которые были актуальны при движении мышиного курсора
@@ -1145,7 +1365,8 @@ begin
             img3d.coords[i].y:=img3d.coords[i].y-yc;
             img3d.coords[i].z:=img3d.coords[i].z-zc;
        end;
-       img3d.Draw3dToImg(Layers[LayerCode],2,true);
+       //img3d.Draw3dToImg(Layers[LayerCode],2,true);
+       img3d.Draw3dToImg(Layers[LayerCode],1,true);
        ComposeImageView;
   end;
 end;
@@ -1165,6 +1386,23 @@ begin
   FilterDePepper(SelIMG,true);
   SelIMG.DrawToIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
   ComposeImageView;
+end;
+
+//загрузить изображение с масштабированием под размер текущего слоя
+procedure TForm1.MenuItemFileOpenScaleClick(Sender: TObject);
+var tmp_IMG:TIMG;
+begin
+  if OpenPictureDialog.Execute then
+  begin
+       ImageFilename:=OpenPictureDialog.filename;
+       tmp_IMG:=TIMG.Create;
+       tmp_IMG.LoadFromFile(ImageFilename);
+       tmp_IMG.ScaleToIMG(Layers[LayerCode]);
+       tmp_IMG.done;
+       WorkIMG.clrscr(-1);
+       ComposeImageView;
+       RefreshStatusBar;
+  end;
 end;
 
 //рисование фрактала Мандельброта
@@ -1230,7 +1468,9 @@ begin
      img3d.trios[11].p1:=6;   img3d.trios[11].p2:=7;   img3d.trios[11].p3:=5;
      img3d.trios[11].c1:=255; img3d.trios[11].c2:=255; img3d.trios[11].c3:=255;
 
-     img3d.Draw3dToImg(Layers[LayerCode],2,true);
+     //img3d.Draw3dToImg(Layers[LayerCode],2,true);
+     img3d.Draw3dToImg(Layers[LayerCode],1,true);
+     Img3dToGrids;
      ComposeImageView;
 end;
 
@@ -1257,7 +1497,9 @@ begin
   img3d.trios[3].p1:=1;   img3d.trios[3].p2:=3;   img3d.trios[3].p3:=2;
   img3d.trios[3].c1:=255; img3d.trios[3].c2:=255; img3d.trios[3].c3:=255;
 
-  img3d.Draw3dToImg(Layers[LayerCode],2,true);
+  //img3d.Draw3dToImg(Layers[LayerCode],2,true);
+  img3d.Draw3dToImg(Layers[LayerCode],1,true);
+  Img3dToGrids;
   ComposeImageView;
 end;
 
@@ -1541,17 +1783,22 @@ begin
     while not(eof(f)) do begin n:=n+1; readln(f,tmp); end;
     reset(f);
 
-    SetLength(Layers[LayerCode].FixCoords,n);
-    for i:=0 to n-1 do
-      readln(f,Layers[LayerCode].FixCoords[i].x,Layers[LayerCode].FixCoords[i].y);
-    CloseFile(f);
-
-    GridCoords.RowCount:=n;
-    for i:=0 to n-1 do
+    if mode_3d then
     begin
-      GridCoords.Cells[0,i]:=IntToStr(i);
-      GridCoords.Cells[1,i]:=IntToStr(Layers[LayerCode].FixCoords[i].x);
-      GridCoords.Cells[2,i]:=IntToStr(Layers[LayerCode].FixCoords[i].y);
+      SetLength(img3d.Coords,n); img3d.n_coords:=n;
+      for i:=0 to n-1 do
+        readln(f,img3d.Coords[i].x,img3d.Coords[i].y,img3d.Coords[i].z);
+      CloseFile(f);
+      img3dToGrids;
+      img3d.Draw3dToImg(Layers[0],1,true);
+      ComposeImageView;
+    end else
+    begin
+      SetLength(Layers[LayerCode].FixCoords,n);
+      for i:=0 to n-1 do
+        readln(f,Layers[LayerCode].FixCoords[i].x,Layers[LayerCode].FixCoords[i].y);
+      CloseFile(f);
+      FixCoordsToGrids;
     end;
   end;
 end;
@@ -1563,10 +1810,46 @@ begin
      if OpenDialog1.execute then
      begin
        img3d.LoadFromStl(OpenDialog1.filename);
-       img3d.Draw3dToImg(Layers[0],3,true);
+       Img3dToGrids;
+       //img3d.Draw3dToImg(Layers[0],3,true);
+       img3d.Draw3dToImg(Layers[0],1,true);
        ComposeImageView;
      end;
   if not(mode_3d) then MessageBox(0,'Включите режим 3D','Включите режим 3D',MB_OK);
+end;
+
+//загрузка массива векторов из внешнего файла
+procedure TForm1.MenuItemLoadVectorsClick(Sender: TObject);
+var f:text; tmp:string; i,n:integer;
+begin
+  if OpenDialog1.execute then
+  begin
+    assignfile(f,OpenDialog1.FileName); reset(f);
+    n:=0;
+    while not(eof(f)) do begin n:=n+1; readln(f,tmp); end;
+    reset(f);
+
+    if mode_3d then
+    begin
+      SetLength(img3d.trios,n); img3d.n_trios:=n;
+      for i:=0 to n-1 do
+      begin
+        readln(f,img3d.trios[i].p1,img3d.trios[i].p2,img3d.trios[i].p3);
+        img3d.trios[i].c1:=255; img3d.trios[i].c2:=255; img3d.trios[i].c3:=255;
+      end;
+      CloseFile(f);
+      img3dToGrids;
+      img3d.Draw3dToImg(Layers[0],1,true);
+      ComposeImageView;
+    end else
+    begin
+      SetLength(Layers[LayerCode].Vectors,n);
+      for i:=0 to n-1 do
+        readln(f,Layers[LayerCode].Vectors[i].x,Layers[LayerCode].Vectors[i].y);
+      CloseFile(f);
+      FixCoordsToGrids;
+    end;
+  end;
 end;
 
 //Низкочастотный фильтр (оставить коэффициенты в центре ДПФ-матрицы)
@@ -1908,21 +2191,47 @@ begin
 end;
 
 //рисование ломаной по таблице опорных точек
-procedure TForm1.MenuItemPolygonOpenClick(Sender: TObject);
-var i,k,n,x1,y1,x2,y2:integer;
+procedure TForm1.MenuItemPolygonFixCoordsClick(Sender: TObject);
+var i,k,x1,y1,x2,y2:integer;
 begin
-  n:=0;
-  for i:=0 to GridCoords.RowCount-1 do
-  if (GridCoords.Cells[1,i]<>'') and (GridCoords.Cells[2,i]<>'') then n:=n+1;
-
-  if n>0 then
+  if length(Layers[LayerCode].FixCoords)>0 then
   begin
-    x1:=Layers[LayerCode].FixCoords[0].x; y1:=Layers[LayerCode].FixCoords[0].y;
-    for i:=1 to length(Layers[LayerCode].FixCoords)-1 do
+    //ищем первую точку с неотрицательными координатами (старт рисования)
+    x1:=-1; y1:=-1; k:=0;
+    while ((x1<0)or(y1<0))and(k<length(Layers[LayerCode].FixCoords)) do
+    begin
+      x1:=Layers[LayerCode].FixCoords[k].x;
+      y1:=Layers[LayerCode].FixCoords[k].y;
+      k:=k+1;
+    end;
+    //рисуем отрезки, "перепрыгивая" точки с отрицательными координатами
+    for i:=k to length(Layers[LayerCode].FixCoords)-1 do
     begin
       x2:=Layers[LayerCode].FixCoords[i].x; y2:=Layers[LayerCode].FixCoords[i].y;
       if (x2>=0) and (y2>=0) then Layers[LayerCode].Line(x1,y1,x2,y2,PenColor);
       x1:=abs(x2); y1:=abs(y2);
+    end;
+  end;
+  ComposeImageView;
+end;
+
+//рисование ломаной по таблице векторов
+procedure TForm1.MenuItemPolygonVectorsClick(Sender: TObject);
+var i,n,x1,y1,x2,y2,p1,p2:integer;
+begin
+  n:=length(Layers[LayerCode].FixCoords);
+  for i:=0 to length(Layers[LayerCode].Vectors)-1 do
+  begin
+    p1:=Layers[LayerCode].Vectors[i].x;
+    p2:=Layers[LayerCode].Vectors[i].y;
+    if (p1>=0) and (p2>=0) and (p1<n) and (p2<n) then
+    begin
+      x1:=Layers[LayerCode].FixCoords[p1].x;
+      y1:=Layers[LayerCode].FixCoords[p1].y;
+      x2:=Layers[LayerCode].FixCoords[p2].x;
+      y2:=Layers[LayerCode].FixCoords[p2].y;
+      if (x1>=0) and (y1>=0) and (x2>=0) and (y2>=0) then
+        Layers[LayerCode].Line(x1,y1,x2,y2,PenColor);
     end;
   end;
   ComposeImageView;
@@ -1948,6 +2257,19 @@ begin
     end;
     bitmap.free;
   end;
+end;
+
+//отрисовать опорные точки
+procedure TForm1.MenuItemPsetFixCoordsClick(Sender: TObject);
+var i,x,y:integer;
+begin
+  for i:=0 to length(Layers[LayerCode].FixCoords)-1 do
+  begin
+    x:=Layers[LayerCode].FixCoords[i].x;
+    y:=Layers[LayerCode].FixCoords[i].y;
+    if (x>=0)or(y>=0) then Layers[LayerCode].SetPixel(abs(x),abs(y),PenColor);
+  end;
+  ComposeImageView;
 end;
 
 //Определит пиковое соотношение сигнал/шум (слой 1 -оригинал, слой 0 - после обработки)
@@ -2025,12 +2347,48 @@ end;
 procedure TForm1.MenuItemSaveFixCoordsClick(Sender: TObject);
 var f:text; i:integer;
 begin
-  if OpenDialog1.execute then
+  if SaveDialog1.execute then
   begin
-    AssignFile(f,OpenDialog1.FileName);
+    AssignFile(f,SaveDialog1.FileName);
     rewrite(f);
-    for i:=0 to length(Layers[LayerCode].FixCoords)-1 do
-      writeln(f,Layers[LayerCode].FixCoords[i].x,' ',Layers[LayerCode].FixCoords[i].y);
+    if mode_3d then
+    begin
+      for i:=0 to length(img3d.coords)-1 do
+        writeln(f,img3d.coords[i].x:8:2,' ',img3d.coords[i].y:8:2,' ',img3d.coords[i].z:8:2);
+    end else
+    begin
+      for i:=0 to length(Layers[LayerCode].FixCoords)-1 do
+        writeln(f,Layers[LayerCode].FixCoords[i].x,' ',Layers[LayerCode].FixCoords[i].y);
+    end;
+    CloseFile(f);
+  end;
+end;
+
+//сохранение 3d-модели в внешний файл формата STL
+procedure TForm1.MenuItemSaveSTLClick(Sender: TObject);
+begin
+  if mode_3d then
+     if SaveDialog1.execute then img3d.SaveToStl(SaveDialog1.filename);
+  if not(mode_3d) then MessageBox(0,'Включите режим 3D','Включите режим 3D',MB_OK);
+end;
+
+//сохранение списка векторов в внешний файл
+procedure TForm1.MenuItemSaveVectorsClick(Sender: TObject);
+var f:text; i:integer;
+begin
+  if SaveDialog1.execute then
+  begin
+    AssignFile(f,SaveDialog1.FileName);
+    rewrite(f);
+    if mode_3d then
+    begin
+      for i:=0 to length(img3d.trios)-1 do
+        writeln(f,img3d.trios[i].p1:8,' ',img3d.trios[i].p2:8,' ',img3d.trios[i].p3:8);
+    end else
+    begin
+      for i:=0 to length(Layers[LayerCode].Vectors)-1 do
+        writeln(f,Layers[LayerCode].Vectors[i].x,' ',Layers[LayerCode].Vectors[i].y);
+    end;
     CloseFile(f);
   end;
 end;
@@ -2209,16 +2567,58 @@ begin
   RefreshStatusBar;
 end;
 
-procedure TForm1.MenuItemVectorizeClick(Sender: TObject);
+//векторизация изображения
+procedure TForm1.MenuItemDetectBorderPixelsClick(Sender: TObject);
+var i,points_num:integer; P:array of TPoint;
 begin
-
+  SetLength(P,Layers[LayerCode].width*Layers[LayerCode].height);
+  SelIMG.DrawFromIMG(Layers[LayerCode],SelIMG.parent_x0,SelIMG.parent_y0);
+  points_num:=DetectBorderPixels(area_min_pixels,area_contrast_level,SelIMG,P);
+  if points_num>length(Layers[LayerCode].FixCoords) then SetLength(Layers[LayerCode].FixCoords,points_num);
+  for i:=0 to points_num-1 do Layers[LayerCode].FixCoords[i]:=P[i];
+  Finalize(P);
+  EditFixCoordsNum.text:=IntToStr(points_num);
+  FixCoordsToGrids;
+  ButtonFixCoordsNumClick(self);
 end;
 
+//Поиск векторов по массиву опорных точек для каждого образа
+//с длиной векторов не менее чем VectorMinD
+procedure TForm1.MenuItemVectorizeClick(Sender: TObject);
+var i,vectors_num:integer; V:array of TPoint;
+begin
+  SetLength(V,Layers[LayerCode].width*Layers[LayerCode].height);
+  vectors_num:=DetectVectors(Vector_min_d,Layers[LayerCode].FixCoords,V);
+  if vectors_num>length(Layers[LayerCode].Vectors) then SetLength(Layers[LayerCode].Vectors,vectors_num);
+  for i:=0 to vectors_num-1 do Layers[LayerCode].Vectors[i]:=V[i];
+  Finalize(V);
+  EditVectorsNum.text:=IntToStr(vectors_num);
+  FixCoordsToGrids;
+  ButtonVectorsNumClick(self);
+end;
+
+//Обработка нажатия кнопки включения/выключения 3D-режима
 procedure TForm1.MenuItem_3D_on_offClick(Sender: TObject);
 begin
      mode_3d:=not(mode_3d);
-     if mode_3d then MenuItem_3D_on_off.Caption:='Выключить режим 3D';
-     if not(mode_3d) then MenuItem_3D_on_off.Caption:='Включить режим 3D';
+     if mode_3d then
+     begin
+          MenuItem_3D_on_off.Caption:='Выключить режим 3D';
+          LabelVectorPTRS.Caption:='Треугольники';
+          GridCoords.ColCount:=4;
+          GridVectors.ColCount:=4;
+          Img3dToGrids;
+          img3d.Draw3dToImg(Layers[0],1,true);
+          ComposeImageView;
+     end;
+     if not(mode_3d) then
+     begin
+          MenuItem_3D_on_off.Caption:='Включить режим 3D';
+          LabelVectorPTRS.Caption:='отрезки (векторы)';
+          GridCoords.ColCount:=3;
+          GridVectors.ColCount:=3;
+          FixCoordsToGrids;
+     end;
      RefreshStatusBar;
 end;
 

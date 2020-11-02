@@ -1,4 +1,4 @@
-//Copyright 2015 Andrey S. Ionisyan (anserion@gmail.com)
+//Copyright 2015-2018 Andrey S. Ionisyan (anserion@gmail.com)
 //
 //Licensed under the Apache License, Version 2.0 (the "License");
 //you may not use this file except in compliance with the License.
@@ -26,12 +26,11 @@ uses
 
 type
 //PInt32=^Int32;
-TBrez=array[0..4096,1..2] of integer;
-
 TImg=class
   data:array of Int32; //байты изображения
   red_data_DFT,green_data_DFT,blue_data_DFT: TIntegerComplexMatrix; //БПФ-образ изображения
   FixCoords: array of TPoint; //массив вспомогательных опорных точек
+  Vectors: array of TPoint; //массив указателей на номера точек (начало,конец) векторов
   name:string; //текстовое имя изображения
   width,height:integer; //ширина и высота изображения
   dft_width,dft_height:integer; //ширина и высота фурье-образа изображения
@@ -96,7 +95,7 @@ begin
   dft_width:=0; dft_height:=0;
   data:=nil;
   red_data_DFT:=nil; green_data_DFT:=nil; blue_data_DFT:=nil;
-  FixCoords:=nil;
+  FixCoords:=nil; Vectors:=nil;
 end;
 
 destructor TImg.done;
@@ -104,6 +103,7 @@ begin
   Finalize(data);
   Finalize(red_data_DFT); Finalize(green_data_DFT); Finalize(blue_data_DFT);
   Finalize(FixCoords);
+  Finalize(Vectors);
 end;
 
 procedure TImg.SetSize(new_width,new_height:integer);
@@ -392,42 +392,6 @@ begin
   end;
 end;
 
-//алгоритм Брезенхема расчета координат точек окружности
-function BrezCircle(xc,yc,r:integer; var Brez:TBrez):integer;
-var xf,yf,PixelsNum,x1,y1,x2,y2,d1,d2,dx,dy,i:integer;
-begin
-  i:=1; Brez[i,1]:=xc-r; Brez[i,2]:=yc;
-  inc(i); Brez[i,1]:=xc+r; Brez[i,2]:=yc;
-  inc(i); Brez[i,1]:=xc; Brez[i,2]:=yc-r;
-  inc(i); Brez[i,1]:=xc; Brez[i,2]:=yc+r;
-  xf:=xc+r;
-  yf:=yc;
-  for PixelsNum:=0 to ((3*r) div 4) do
-  begin
-      x1:=xf-1; x2:=xf;
-      y1:=yf-1; y2:=yf-1;
-
-      d1:=(xc-x1)*(xc-x1)+(yc-y1)*(yc-y1)-r*r;
-      d2:=(xc-x2)*(xc-x2)+(yc-y2)*(yc-y2)-r*r;
-
-      if (d1<0) then d1:=-d1;
-      if (d2<0) then d2:=-d2;
-
-      if (d1<d2) then begin xf:=x1; yf:=y1; end else begin xf:=x2; yf:=y2; end;
-      dx:=xf-xc; dy:=yf-yc;
-
-      inc(i); Brez[i,1]:=xc+dx; Brez[i,2]:=yc+dy;
-      inc(i); Brez[i,1]:=xc-dx; Brez[i,2]:=yc+dy;
-      inc(i); Brez[i,1]:=xc+dx; Brez[i,2]:=yc-dy;
-      inc(i); Brez[i,1]:=xc-dx; Brez[i,2]:=yc-dy;
-      inc(i); Brez[i,1]:=xc+dy; Brez[i,2]:=yc+dx;
-      inc(i); Brez[i,1]:=xc-dy; Brez[i,2]:=yc+dx;
-      inc(i); Brez[i,1]:=xc+dy; Brez[i,2]:=yc-dx;
-      inc(i); Brez[i,1]:=xc-dy; Brez[i,2]:=yc-dx;
-  end;
-  BrezCircle:=i;
-end;
-
 procedure TIMG.circle(x0,y0,r:integer; C:Int32);
 var Brez:TBrez;
     i,np:Integer;
@@ -447,39 +411,6 @@ begin
      yy:=trunc(y0+yr*sin(t));
      SetPixel(xx,yy,C);
   end;
-end;
-
-//алгоритм Брезенхема расчета координат точек отрезка
-function BrezLine(x1,y1,x2,y2:integer; var Brez:TBrez):integer;
-var dx,dy,ix,iy,x,y,i,j,PlotX,PlotY,Hinc:integer;
-    Plot:Boolean;
-begin
-     dx:=x2-x1; dy:=y2-y1;
-     ix:=abs(dx); iy:=abs(dy);
-     if ix>iy then Hinc:=ix else Hinc:=iy;
-     PlotX:=x1; Ploty:=y1; x:=0; y:=0;
-     i:=1; Brez[i,1]:=PlotX; Brez[i,2]:=PlotY;
-     for j:=0 to Hinc do
-         begin
-              x:=x+ix; y:=y+iy; Plot:=false;
-              if x>Hinc then
-                 begin
-                      Plot:=true; x:=x-Hinc;
-                      if dx>0 then inc(PlotX);
-                      if dx<0 then dec(PlotX);
-                 end;
-              if y>Hinc then
-                 begin
-                      Plot:=true; y:=y-Hinc;
-                      if dy>0 then inc(PlotY);
-                      if dy<0 then dec(PlotY);
-                 end;
-              if Plot then
-                 begin
-                      inc(i); Brez[i,1]:=PlotX; Brez[i,2]:=PlotY;
-                 end;
-         end;
-     BrezLine:=i;
 end;
 
 //рисование отрезка на img

@@ -48,10 +48,14 @@ MatrixFilter_k31,MatrixFilter_k32,MatrixFilter_k33:real; //много чисел
 affine_a11,affine_a12,affine_a21,affine_a22,affine_a31,affine_a32:real; //коэффициенты аффинного преобразования
 area_min_pixels:integer; //min число пикселей в образе
 area_contrast_level:integer; //уровень контрастности границ при поиске образов на изображении
+vector_min_d:integer; //минимальная длина вектора при векторизации
 global_DFT_width,global_DFT_height:integer; //размеры матрицы преобразования Фурье
 mode_3d:boolean; //режим трехмерного моделирования
 thetha_3d,phi_3d,dist_3d:real; //углы поворота и удаление от наблюдателя
 img3d:Timg3d; //глобальный 3d-объект
+Brez_N:integer; //количество активных пикселей в массиве Brez
+BrezPocket:TBrez; //хранилище координат быстро перерисовываемых примитивов
+BrezColors:Int32; //цвета точек под быстро перерисовываемыми примитивами
 
 procedure AddNewImageToCollection(img:TIMG); //добавление нового изображения в конец коллекции (создается новая копия изображения)
 procedure RemoveImageFromCollection(img_num:integer); //удаление изображения из коллекции

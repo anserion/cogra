@@ -1,128 +1,127 @@
 object Form1: TForm1
-  Left = 84
-  Height = 736
+  Left = 0
+  Height = 715
   Top = 0
-  Width = 1139
+  Width = 1004
   Caption = 'Шаблон программ дисциплины "Компьютерная графика" v0.95 (автор Ионисян А.С.)'
-  ClientHeight = 711
-  ClientWidth = 1139
-  DesignTimePPI = 120
+  ClientHeight = 684
+  ClientWidth = 1004
   Menu = MainMenu
   OnCreate = FormCreate
-  LCLVersion = '1.8.0.6'
+  LCLVersion = '1.8.2.0'
   WindowState = wsMaximized
   object PanelStatus: TPanel
     Left = 0
     Height = 64
-    Top = 647
-    Width = 1139
+    Top = 620
+    Width = 1004
     Align = alBottom
     Alignment = taLeftJustify
     BevelOuter = bvLowered
     ClientHeight = 64
-    ClientWidth = 1139
+    ClientWidth = 1004
     TabOrder = 0
     object LabelMouseCoords: TLabel
       Left = 200
-      Height = 20
+      Height = 23
       Top = 24
-      Width = 47
+      Width = 55
       Caption = 'Мышь:'
       ParentColor = False
     end
     object LabelColorPen: TLabel
       Left = 8
-      Height = 20
+      Height = 23
       Top = 0
-      Width = 113
+      Width = 127
       Caption = 'Цвет рисования'
       ParentColor = False
       OnClick = LabelColorPenClick
     end
     object LabelPBoxMainSize: TLabel
       Left = 200
-      Height = 20
+      Height = 23
       Top = 0
-      Width = 64
+      Width = 73
       Caption = 'Полотно:'
       ParentColor = False
     end
     object LabelInstrumentName: TLabel
       Left = 600
-      Height = 20
+      Height = 23
       Top = 0
-      Width = 86
+      Width = 99
       Caption = 'Инструмент:'
       ParentColor = False
     end
     object LabelFileName: TLabel
       Left = 8
-      Height = 20
+      Height = 23
       Top = 45
-      Width = 39
+      Width = 45
       Caption = 'Файл:'
       ParentColor = False
       OnClick = MenuItemFileOpenClick
     end
     object LabelLayerCode: TLabel
       Left = 400
-      Height = 20
+      Height = 23
       Top = 0
-      Width = 38
+      Width = 43
       Caption = 'Слой:'
       ParentColor = False
       OnClick = LabelLayerCodeClick
     end
     object LabelLayerTransp: TLabel
       Left = 400
-      Height = 20
+      Height = 23
       Top = 24
-      Width = 103
+      Width = 119
       Caption = 'Прозрачность:'
       ParentColor = False
       OnClick = LabelLayerTranspClick
     end
     object LabelPenSize: TLabel
       Left = 600
-      Height = 20
+      Height = 23
       Top = 24
-      Width = 40
+      Width = 45
       Caption = 'Перо:'
       ParentColor = False
       OnClick = LabelPenSizeClick
     end
     object LabelMagnify: TLabel
       Left = 6
-      Height = 20
+      Height = 23
       Top = 24
-      Width = 37
+      Width = 42
       Caption = 'Лупа:'
       ParentColor = False
     end
     object LabelCollection: TLabel
       Left = 752
-      Height = 20
+      Height = 23
       Top = 24
-      Width = 78
+      Width = 88
       Caption = 'Коллекция:'
       ParentColor = False
     end
     object Label_3D: TLabel
       Left = 928
-      Height = 20
+      Height = 23
       Top = 0
-      Width = 73
+      Width = 82
       Caption = 'Режим 3D:'
       ParentColor = False
     end
   end
   object PanelColor: TPanel
     Left = 0
-    Height = 579
+    Height = 552
     Top = 68
     Width = 144
     Align = alLeft
-    ClientHeight = 579
+    ClientHeight = 552
     ClientWidth = 144
     TabOrder = 1
     object LabelColorRed: TLabel
@@ -286,13 +285,13 @@ object Form1: TForm1
     end
   end
   object PanelGrids: TPanel
-    Left = 656
-    Height = 579
+    Left = 488
+    Height = 552
     Top = 68
-    Width = 483
+    Width = 516
     Align = alRight
-    ClientHeight = 579
-    ClientWidth = 483
+    ClientHeight = 552
+    ClientWidth = 516
     TabOrder = 2
     object GridFilterKoeff: TStringGrid
       Left = 152
@@ -309,9 +308,9 @@ object Form1: TForm1
     end
     object Label1: TLabel
       Left = 152
-      Height = 20
+      Height = 23
       Top = 8
-      Width = 85
+      Width = 97
       Caption = 'Фильтрация'
       ParentColor = False
     end
@@ -330,23 +329,23 @@ object Form1: TForm1
     end
     object LabelAffineGrid: TLabel
       Left = 8
-      Height = 40
+      Height = 46
       Top = 8
-      Width = 104
+      Width = 119
       Caption = 'Аффинные '#10'коэффициенты'
       ParentColor = False
     end
     object LabelFilterZnam: TLabel
       Left = 152
-      Height = 20
+      Height = 23
       Top = 25
-      Width = 91
+      Width = 104
       Caption = 'Знаменатель'
       ParentColor = False
     end
     object EditFilterZnam: TEdit
       Left = 248
-      Height = 28
+      Height = 35
       Top = 15
       Width = 80
       TabOrder = 2
@@ -371,7 +370,7 @@ object Form1: TForm1
       TabOrder = 4
     end
     object ButtonAreasParams: TButton
-      Left = 8
+      Left = 12
       Height = 25
       Top = 240
       Width = 342
@@ -381,47 +380,47 @@ object Form1: TForm1
     end
     object EditAreasMinPixels: TEdit
       Left = 8
-      Height = 28
+      Height = 35
       Top = 192
-      Width = 96
+      Width = 76
       TabOrder = 6
       Text = '100'
     end
     object EditAreasContrast: TEdit
-      Left = 160
-      Height = 28
+      Left = 96
+      Height = 35
       Top = 192
-      Width = 96
+      Width = 76
       TabOrder = 7
       Text = '100'
     end
     object LabelAreasMinPixels: TLabel
-      Left = 16
-      Height = 20
+      Left = 8
+      Height = 23
       Top = 176
-      Width = 94
+      Width = 106
       Caption = 'min пикселей'
       ParentColor = False
     end
     object LabelAreasContrast: TLabel
-      Left = 160
-      Height = 20
+      Left = 104
+      Height = 23
       Top = 176
-      Width = 167
-      Caption = 'Контрастность границы'
+      Width = 73
+      Caption = 'Контраст'
       ParentColor = False
     end
     object CheckBoxShowImages: TCheckBox
       Left = 8
-      Height = 24
+      Height = 27
       Top = 218
-      Width = 162
+      Width = 182
       Caption = 'показывать образы'
       TabOrder = 8
     end
     object Edit_DFT_width: TEdit
       Left = 16
-      Height = 28
+      Height = 35
       Top = 296
       Width = 115
       TabOrder = 9
@@ -438,7 +437,7 @@ object Form1: TForm1
     end
     object Edit_DFT_height: TEdit
       Left = 192
-      Height = 28
+      Height = 35
       Top = 296
       Width = 115
       TabOrder = 11
@@ -446,31 +445,31 @@ object Form1: TForm1
     end
     object Label2: TLabel
       Left = 5
-      Height = 20
+      Height = 23
       Top = 280
-      Width = 160
+      Width = 178
       Caption = 'ширина БПФ-матрицы'
       ParentColor = False
     end
     object Label3: TLabel
       Left = 184
-      Height = 20
+      Height = 23
       Top = 280
-      Width = 153
+      Width = 171
       Caption = 'высота БПФ-матрицы'
       ParentColor = False
     end
     object Label4: TLabel
       Left = 12
-      Height = 20
+      Height = 23
       Top = 360
-      Width = 59
+      Width = 67
       Caption = 'Консоль'
       ParentColor = False
     end
     object TextConsole: TMemo
       Left = 5
-      Height = 176
+      Height = 200
       Top = 376
       Width = 347
       Lines.Strings = (
@@ -482,17 +481,17 @@ object Form1: TForm1
     end
     object LabelCoords: TLabel
       Left = 360
-      Height = 20
+      Height = 23
       Top = 0
-      Width = 109
+      Width = 124
       Caption = 'Опорные точки'
       ParentColor = False
     end
     object GridCoords: TStringGrid
       Left = 360
-      Height = 504
+      Height = 312
       Top = 48
-      Width = 120
+      Width = 150
       ColCount = 3
       DefaultColWidth = 32
       FixedRows = 0
@@ -504,7 +503,7 @@ object Form1: TForm1
     end
     object EditFixCoordsNum: TEdit
       Left = 360
-      Height = 28
+      Height = 35
       Top = 17
       Width = 80
       TabOrder = 14
@@ -519,12 +518,67 @@ object Form1: TForm1
       OnClick = ButtonFixCoordsNumClick
       TabOrder = 15
     end
+    object LabelVectorPTRS: TLabel
+      Left = 360
+      Height = 23
+      Top = 360
+      Width = 143
+      Caption = 'отрезки (векторы)'
+      ParentColor = False
+    end
+    object EditVectorsNum: TEdit
+      Left = 360
+      Height = 35
+      Top = 381
+      Width = 80
+      TabOrder = 16
+      Text = '100'
+    end
+    object ButtonVectorsNum: TButton
+      Left = 447
+      Height = 28
+      Top = 376
+      Width = 33
+      Caption = 'OK'
+      OnClick = ButtonVectorsNumClick
+      TabOrder = 17
+    end
+    object GridVectors: TStringGrid
+      Left = 360
+      Height = 168
+      Top = 408
+      Width = 150
+      ColCount = 3
+      DefaultColWidth = 32
+      FixedRows = 0
+      Options = [goFixedVertLine, goFixedHorzLine, goVertLine, goHorzLine, goRangeSelect, goEditing, goSmoothScroll]
+      RowCount = 100
+      ScrollBars = ssVertical
+      TabOrder = 18
+      OnEditingDone = GridVectorsEditingDone
+    end
+    object Label6: TLabel
+      Left = 188
+      Height = 23
+      Top = 176
+      Width = 87
+      Caption = 'min вектор'
+      ParentColor = False
+    end
+    object EditVectorMin: TEdit
+      Left = 184
+      Height = 35
+      Top = 192
+      Width = 76
+      TabOrder = 19
+      Text = '10'
+    end
   end
   object ImageView: TPaintBox
     Left = 144
-    Height = 579
+    Height = 552
     Top = 68
-    Width = 512
+    Width = 344
     Align = alClient
     OnMouseDown = ImageViewMouseDown
     OnMouseMove = ImageViewMouseMove
@@ -537,16 +591,16 @@ object Form1: TForm1
     Left = 0
     Height = 68
     Top = 0
-    Width = 1139
+    Width = 1004
     Align = alTop
     ClientHeight = 68
-    ClientWidth = 1139
+    ClientWidth = 1004
     TabOrder = 3
     object PBoxCollection: TPaintBox
       Left = 1
-      Height = 52
+      Height = 53
       Top = 1
-      Width = 1137
+      Width = 1002
       Align = alClient
       OnMouseMove = PBoxCollectionMouseMove
       OnMouseUp = PBoxCollectionMouseUp
@@ -554,9 +608,9 @@ object Form1: TForm1
     end
     object ScrollBarCollection: TScrollBar
       Left = 1
-      Height = 14
-      Top = 53
-      Width = 1137
+      Height = 13
+      Top = 54
+      Width = 1002
       Align = alBottom
       PageSize = 0
       TabOrder = 0
@@ -571,6 +625,10 @@ object Form1: TForm1
       object MenuItemFileOpen: TMenuItem
         Caption = 'Загрузить'
         OnClick = MenuItemFileOpenClick
+      end
+      object MenuItemFileOpenScale: TMenuItem
+        Caption = 'Загрузить и масштабировать'
+        OnClick = MenuItemFileOpenScaleClick
       end
       object MenuItemFileSave: TMenuItem
         Caption = 'Сохранить'
@@ -591,6 +649,14 @@ object Form1: TForm1
       object MenuItemSaveFixCoords: TMenuItem
         Caption = 'Сохранить опорные точки'
         OnClick = MenuItemSaveFixCoordsClick
+      end
+      object MenuItemLoadVectors: TMenuItem
+        Caption = 'Загрузить векторы'
+        OnClick = MenuItemLoadVectorsClick
+      end
+      object MenuItemSaveVectors: TMenuItem
+        Caption = 'Сохранить векторы'
+        OnClick = MenuItemSaveVectorsClick
       end
       object MenuItemPrint: TMenuItem
         Caption = 'Печать'
@@ -856,9 +922,17 @@ object Form1: TForm1
     end
     object MenuItemGeneration: TMenuItem
       Caption = 'Генерация'
-      object MenuItemPolygonOpen: TMenuItem
-        Caption = 'Ломаная'
-        OnClick = MenuItemPolygonOpenClick
+      object MenuItemPsetFixCoords: TMenuItem
+        Caption = 'Отрисовать опорные точки'
+        OnClick = MenuItemPsetFixCoordsClick
+      end
+      object MenuItemPolygonFixCoords: TMenuItem
+        Caption = 'Ломаная из опорных точек'
+        OnClick = MenuItemPolygonFixCoordsClick
+      end
+      object MenuItemPolygonVectors: TMenuItem
+        Caption = 'Ломаная из векторов'
+        OnClick = MenuItemPolygonVectorsClick
       end
       object MenuItemNoise: TMenuItem
         Caption = 'Шум'
@@ -913,6 +987,10 @@ object Form1: TForm1
       object MenuItemLoadSTL: TMenuItem
         Caption = 'Загрузить STL'
         OnClick = MenuItemLoadSTLClick
+      end
+      object MenuItemSaveSTL: TMenuItem
+        Caption = 'Сохранить STL'
+        OnClick = MenuItemSaveSTLClick
       end
       object MenuItemPrimitivs3D: TMenuItem
         Caption = '3D Примитивы'
@@ -981,6 +1059,14 @@ object Form1: TForm1
     end
     object MenuItemOIR: TMenuItem
       Caption = 'Распознавание образов'
+      object MenuItemDetectBorderPixels: TMenuItem
+        Caption = 'Найти граничные точки образов'
+        OnClick = MenuItemDetectBorderPixelsClick
+      end
+      object MenuItemVectorize: TMenuItem
+        Caption = 'Векторизация опорных точек'
+        OnClick = MenuItemVectorizeClick
+      end
       object MenuItemSearchRegions: TMenuItem
         Caption = 'Поиск областей'
         OnClick = MenuItemSearchRegionsClick
@@ -1274,6 +1360,10 @@ object Form1: TForm1
   end
   object OpenDialog1: TOpenDialog
     left = 610
+    top = 16
+  end
+  object SaveDialog1: TSaveDialog
+    left = 256
     top = 16
   end
 end
